@@ -1,7 +1,11 @@
-const split = require('split-string')
+const {State} = require('./state')
 const error = require('./error')
+
 const {
-  ensureObject, commandId
+  ensureObject,
+  stateId, commandId,
+  checkId,
+  COMMAND
 } = require('./util')
 
 const RETURN_TRUE = () => true
@@ -12,21 +16,51 @@ const PARSE_OPTIONS = Symbol('parse-options')
 // it can not intercept into the process of another executing command,
 // No command can intercept into an executing command which has sub states
 class Command {
-  constructor (name) {
+  #id
+  #store
+  #map
+  // #hooks
+  #global
+
+  #options
+
+  constructor ({
+    id,
+    store,
+    map,
+    // hooks,
+    global
+  }) {
+    map.set(id, {
+      type: COMMAND,
+      target: this
+    })
+
+    const command = ensureObject(store, id)
+    const options = ensureObject(command, 'options')
+    this.#options = options
+
+    this.#id = id
+    this.#store = store
+    this.#map = map
+    // this.#hooks = hooks
+    this.#global = global
+
     this._validator = RETURN_TRUE
-  }
-
-  alias (...aliases) {
-
   }
 
   // returns state
   state (name) {
+    checkId(name)
+    const id = stateId(name, this.#id)
 
-  }
+    const state = new State({
+      id,
+      store: this.#store,
+      hooks: this.#hooks
+    })
 
-  global () {
-
+    return state
   }
 
   condition (validator) {
@@ -39,6 +73,10 @@ class Command {
     message,
     validate
   }) {
+    if (this.#global) {
+      throw error('OPTIONS_ON_GLOBAL_COMMAND')
+    }
+
 
   }
 
@@ -56,12 +94,27 @@ class Command {
 }
 
 class CommandManager {
-  constructor (store) {
-    this._store = store
+  #store
+  #map
+  #contextId
+  #global
+
+  constructor ({
+    store,
+    map,
+    // hooks,
+    contextId,
+    global = false
+  }) {
+    this.#store = store
+    this.#map = map
+    // this.#hooks = hooks
+    this.#contextId = contextId
+    this.#global = global
     this._commands = Object.create(null)
   }
 
-  _check (names) {
+  _checkDuplicate (names) {
     for (const name of names) {
       if (name in this._commands) {
         throw error('DUPLICATE_COMMAND')
@@ -70,32 +123,67 @@ class CommandManager {
   }
 
   add (names) {
-    this._check(names)
     const [name] = names
+    checkId(name)
 
-    const id = commandId(name)
-    const commandStore = ensureObject(this._store, id)
+    this._checkDuplicate(names)
 
-    const command = new Command(commandStore)
+    const id = commandId(name, this.#contextId)
+
+    const command = new Command({
+      id,
+      store: this.#store,
+      map: this.#map,
+      // hooks: this.#hooks,
+      global: this.#global
+    })
 
     for (const n of names) {
-      this._commands[n] = command
+      this._commands[n] = {
+        id,
+        command
+      }
     }
 
     return command
   }
 
-  search (name) {
-    return this._commands[name]
-  }
+  search (name, exact) {
+    const instant = this._commands[name]
 
-  parse (input) {
-    const splitted = split(input, {
-      separator: ' '
-    })
+    // Returns the exact match
+    if (instant) {
+      return {
+        matched: name,
+        ...instant
+      }
+    }
 
-    if (true) {
+    if (exact) {
+      return
+    }
+    // Else, try to find the longest match
 
+    let longest
+    let l = 0
+
+    for (const n of Object.keys(this._commands)) {
+      if (!name.startsWith(n)) {
+        continue
+      }
+
+      const {length} = n
+      if (length > l) {
+        l = length
+        longest = n
+      }
+    }
+
+    if (longest) {
+      return {
+        matched: longest,
+        ...this._commands[longest]
+      }
     }
   }
 }

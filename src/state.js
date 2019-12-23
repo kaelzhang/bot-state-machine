@@ -1,15 +1,15 @@
 const EE = require('events')
 const {inherits} = require('util')
+
 const {CommandManager} = require('./command')
 const error = require('./error')
 const {
-  create, ensureObject, stateId,
-  COMMAND_PREFIX
+  ensureObject, commandId,
+  checkId,
+  STATE
 } = require('./util')
 
 const SEARCH = Symbol('search')
-const ACTIVATE = Symbol('activate')
-const DEACTIVATE = Symbol('deactivate')
 
 const NOOP = () => {}
 
@@ -58,146 +58,66 @@ class Flags {
 }
 
 class State {
+  #id
+  #store
+  #map
+  // #hooks
+
+  #cm
+  #flags
+
   constructor ({
-    rootState,
+    id,
+    // hooks,
     // only store non-configuration data in dataStore
     store,
-    id
+    map
   } = {}) {
-    this._id = id
-    this._rootState = rootState
-    this._store = store
+    map.set(id, {
+      type: STATE,
+      target: this
+    })
 
-    this._activate = false
+    this.#id = id
+    this.#store = store
+    this.#map = map
+    // this.#hooks = hooks
 
     const state = ensureObject(store, id)
     const flags = ensureObject(state, 'flags')
 
-    this._flags = new Flags(flags)
-    this._cm = new CommandManager(state)
+    this.#flags = new Flags(flags)
+    this.#cm = new CommandManager({
+      store,
+      map,
+      // hooks,
+      contextId: id
+    })
   }
 
   flag (name, initialValue, onchange) {
-    this._flags.add(name, initialValue, onchange)
+    this.#flags.add(name, initialValue, onchange)
     return this
   }
 
   setFlag (name, value) {
-    this._flags.set(name, value)
-  }
-
-  _say (...things) {
-    this._rootState.say(...things)
+    this.#flags.set(name, value)
   }
 
   say (...things) {
-    if (this._activate) {
-      this._say(...things)
-    }
+    const {say} = this.#store
+    say.push(things)
   }
 
   command (...names) {
-    return this._cm.add(names)
+    return this.#cm.add(names)
   }
 
-  [SEARCH] (commandName) {
-    if (true) {
-
-    }
-  }
-
-  [ACTIVATE] () {
-    this._activate = true
-  }
-
-  [DEACTIVATE] () {
-    this._activate = false
-  }
-}
-
-const isCharCodeNeedSspace = code => code < 126
-const joinTwo = (s1, s2) => isCharCodeNeedSspace(s1.charCodeAt(s1.length - 1))
-  || isCharCodeNeedSspace(s2.charCodeAt(0))
-  ? `${s1} ${s2}`
-  : s1 + s2
-
-const DEFAULT_FORMATTER = strings => strings.reduce(joinTwo)
-const DEFAULT_JOINER = said => said.join('\n')
-
-const createInitStore = () => {
-  const store = create()
-  store.states = create()
-  return store
-}
-
-class RootState extends State {
-  constructor (dataStore = createInitStore()) {
-    super({
-      rootState: null,
-      dataStore,
-      id: stateId('root')
-    })
-
-    this._globalCm = new CommandManager()
-    this._sayBuffer = []
-    this._formatter = DEFAULT_FORMATTER
-    this._joiner = DEFAULT_JOINER
-    this._activate = true
-  }
-
-  _say (...things) {
-    this._sayBuffer.push(things)
-  }
-
-  format (formatter) {
-    this._formatter = formatter
-    return this
-  }
-
-  join (joiner) {
-    this._joiner = joiner
-    return this
-  }
-
-  _getCurrentState () {
-
-  }
-
-  busy (onbusy) {
-
-  }
-
-  _searchCommand () {
-
-  }
-
-  globalCommand (names) {
-    return this._globalCm.add(names)
-  }
-
-  async _runCommand ({
-    command,
-    options
-  }) {
-
-  }
-
-  async input (command) {
-
-
-
-    this._sayBuffer.length = 0
-
-    await this._runCommand({
-      command,
-      options
-    })
-
-    return Promise.all(this._sayBuffer.map(this._formatter))
-    .then(this._joiner)
+  search (name, exact) {
+    return this.#cm.search(name, exact)
   }
 }
 
 module.exports = {
-  RootState
+  State
 }
