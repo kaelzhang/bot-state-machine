@@ -1,15 +1,9 @@
-const EE = require('events')
-const {inherits} = require('util')
-
 const {CommandManager} = require('./command')
 const error = require('./error')
 const {
-  ensureObject, commandId,
-  checkId,
+  ensureObject, create,
   STATE
 } = require('./util')
-
-const SEARCH = Symbol('search')
 
 const NOOP = () => {}
 
@@ -59,9 +53,9 @@ class Flags {
 
 class State {
   #id
+  // We do not allow State to get access to data store
   #store
   #map
-  // #hooks
 
   #cm
   #flags

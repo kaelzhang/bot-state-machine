@@ -1,5 +1,5 @@
-// const {AsyncParallelHook} = require('tapable')
 const split = require('split-string')
+const {format} = require('util')
 
 const {State} = require('./state')
 const {CommandManager} = require('./command')
@@ -11,24 +11,16 @@ const {
   STATE
 } = require('./util')
 
-const isCharCodeNeedSspace = code => code < 126
-const joinTwo = (s1, s2) => isCharCodeNeedSspace(s1.charCodeAt(s1.length - 1))
-  || isCharCodeNeedSspace(s2.charCodeAt(0))
-  ? `${s1} ${s2}`
-  : s1 + s2
-
-const DEFAULT_FORMATTER = strings => strings.reduce(joinTwo)
+// The default formatter is util.format
+const DEFAULT_FORMATTER = format
 const DEFAULT_JOINER = said => said.join('\n')
 
+// StateMachine is controlled by administrators
+// But State and Command might be controlled by plugins
 class StateMachine {
   constructor (store = create()) {
     this._store = store
     this._map = new WeakMap()
-
-    // const hooks = {
-
-    // }
-    // this._hooks = hooks
 
     this._cm = new CommandManager({
       store,
@@ -116,7 +108,7 @@ class StateMachine {
   }) {
     this._store.say = []
 
-
+    // TODO
 
     const output = Promise.all(this._store.say.map(this._formatter))
     .then(this._joiner)
