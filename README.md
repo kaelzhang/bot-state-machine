@@ -20,7 +20,7 @@ Finite state machine for chat bot, which
 - Supports to define custom commands with options
 - Supports simplified command options
 - Supports sub states and command declarations in sub states
-- Only allow **a single task thread**, which means that your chat bot could only apply only one task at one time globally even in distributed environment. A single-thread chat bot executes less things but fits better for voice input and interactive tasks.
+- Only allows **a single task thread**, which means that your chat bot could apply only one task at a time globally even in distributed environment. A single-thread chat bot executes less things but fits better for voice input and interactive tasks.
 
 ## Install
 
