@@ -15,7 +15,12 @@
 
 # bot-state-machine
 
-Finite state machine for chat bot
+Finite state machine for chat bot, which
+
+- Supports to define custom commands with options
+- Supports simplified command options
+- Supports sub states and command declarations in sub states
+- Only allow **a single task thread**, which means that your chat bot could only apply only one task at one time globally even in distributed environment. A single-thread chat bot executes less things but fits better for voice input and interactive tasks.
 
 ## Install
 
@@ -26,7 +31,11 @@ $ npm i bot-state-machine
 ## Usage
 
 ```js
-const bot_state_machine = require('bot-state-machine')
+const {StateMachine} = require('bot-state-machine')
+
+const cm = new StateMachine()
+
+// TODO
 ```
 
 ## License
