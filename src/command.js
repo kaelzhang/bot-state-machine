@@ -17,21 +17,31 @@ const PARSE_OPTIONS = Symbol('parse-options')
 // No command can intercept into an executing command which has sub states
 class Command {
   #id
-  #store
-  #map
+  // #store
+  // #map
+  // #stateMap
   // #hooks
+
+  #context
   #global
 
   #options
 
   constructor ({
     id,
-    store,
-    map,
+    // store,
+    // map,
+    // stateMap,
     // hooks,
+    context,
     global
   }) {
-    map.set(id, {
+    const {
+      idMap,
+      store
+    } = context
+
+    idMap.set(id, {
       type: COMMAND,
       target: this
     })
@@ -41,9 +51,11 @@ class Command {
     this.#options = options
 
     this.#id = id
-    this.#store = store
-    this.#map = map
+    // this.#store = store
+    // this.#map = map
+    // this.#stateMap = stateMap
     // this.#hooks = hooks
+    this.#context = context
     this.#global = global
 
     this._validator = RETURN_TRUE
@@ -56,8 +68,10 @@ class Command {
 
     const state = new State({
       id,
-      store: this.#store,
-      hooks: this.#hooks
+      // store: this.#store,
+      // map: this.#stateMap,
+      // stateMap: this.#stateMap
+      context: this.#context
     })
 
     return state
@@ -94,21 +108,27 @@ class Command {
 }
 
 class CommandManager {
-  #store
-  #map
+  // #store
+  // #map
+  // #stateMap
+  #context
   #contextId
   #global
 
   constructor ({
-    store,
-    map,
+    // store,
+    // map,
+    // stateMap,
     // hooks,
+    context,
     contextId,
     global = false
   }) {
-    this.#store = store
-    this.#map = map
+    // this.#store = store
+    // this.#map = map
+    // this.#stateMap = stateMap
     // this.#hooks = hooks
+    this.#context = context
     this.#contextId = contextId
     this.#global = global
     this._commands = Object.create(null)
@@ -132,8 +152,10 @@ class CommandManager {
 
     const command = new Command({
       id,
-      store: this.#store,
-      map: this.#map,
+      context: this.#context,
+      // store: this.#store,
+      // map: this.#map,
+      // stateMap: this.#stateMap,
       // hooks: this.#hooks,
       global: this.#global
     })

@@ -54,8 +54,9 @@ class Flags {
 class State {
   #id
   // We do not allow State to get access to data store
-  #store
-  #map
+  // #store
+  // #map
+  // #stateMap
 
   #cm
   #flags
@@ -64,17 +65,24 @@ class State {
     id,
     // hooks,
     // only store non-configuration data in dataStore
-    store,
-    map
+    context
   } = {}) {
-    map.set(id, {
+    const {
+      idMap,
+      stateMap,
+      store
+    } = context
+
+    idMap.set(id, {
       type: STATE,
       target: this
     })
 
+    stateMap.set(this, id)
+
     this.#id = id
-    this.#store = store
-    this.#map = map
+    // this.#store = store
+    // this.#map = map
     // this.#hooks = hooks
 
     const state = ensureObject(store, id)
@@ -82,8 +90,7 @@ class State {
 
     this.#flags = new Flags(flags)
     this.#cm = new CommandManager({
-      store,
-      map,
+      context,
       // hooks,
       contextId: id
     })

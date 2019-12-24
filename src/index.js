@@ -20,11 +20,15 @@ const DEFAULT_JOINER = said => said.join('\n')
 class StateMachine {
   constructor (store = create()) {
     this._store = store
-    this._map = new WeakMap()
+    this._idMap = new WeakMap()
+    this._stateMap = new WeakMap()
 
     this._cm = new CommandManager({
-      store,
-      map: this._map,
+      context: {
+        store,
+        idMap: this._idMap,
+        stateMap: this._stateMap
+      },
       // hooks,
       global: true
     })
@@ -83,7 +87,7 @@ class StateMachine {
     const {
       type,
       target
-    } = this._map.get(current) || {
+    } = this._idMap.get(current) || {
       type: STATE,
       target: this._rootState
     }

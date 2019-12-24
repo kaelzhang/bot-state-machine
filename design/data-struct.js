@@ -1,7 +1,6 @@
 // prefix
 // - state: $
 // - command: $$
-// - option: $$
 const store = {
   current: '$.$$buy',
 
