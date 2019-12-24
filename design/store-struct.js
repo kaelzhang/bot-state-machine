@@ -21,7 +21,9 @@ const store = {
     options: {
       stock: '09988',
       amount: '10'
-    }
+    },
+
+    [Symbol.for('states')]
   },
 
   // confirm state of command buy
@@ -30,4 +32,9 @@ const store = {
 
     }
   }
+}
+
+const redis = {
+  [`command-lock:${userId}`]: uuid,
+  [`bot-state:${userId}`]: JSON.stringify(store)
 }

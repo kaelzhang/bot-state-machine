@@ -32,9 +32,6 @@ const checkId = id => {
   }
 }
 
-const COMMAND = 'command'
-const STATE = 'state'
-
 // const getType = id => {
 //   if (id.startsWith(COMMAND_PREFIX)) {
 //     return COMMAND
@@ -61,7 +58,22 @@ module.exports = {
 
   checkId,
 
-  COMMAND,
-  STATE,
+  COMMAND: 'command',
+  STATE: 'state',
+
+  // So that JSON.stringify will abandon this key
+  COMMANDS: Symbol.for('commands'),
+  STATES: Symbol.for('states'),
+  OPTIONS: 'o',
+  FLAGS: 'f',
   // getType
+
+
+  RUN: Symbol('run'),
+  CONDITIONED: Symbol('conditioned'),
+  SET_OPTIONS: Symbol('set-options'),
+  UPDATE_OPTIONS: Symbol('update-options'),
+
+  RETURN_TRUE: () => true,
+  NOOP: () => {}
 }

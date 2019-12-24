@@ -21,6 +21,10 @@
     "url": "git://github.com/kaelzhang/bot-state-machine.git"
   },
   "keywords": [
+    "robotics",
+    "chat-bot",
+    "state-machine",
+    "fsm",
     "bot-state-machine"
   ],
   "engines": {

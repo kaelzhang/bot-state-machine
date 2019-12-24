@@ -21,6 +21,7 @@ Finite state machine for chat bot, which
 - Supports simplified command options
 - Supports sub states and command declarations in sub states
 - Only allows **a single task thread**, which means that your chat bot could apply only one task at a time globally even in distributed environment. A single-thread chat bot executes less things but fits better for voice input and interactive tasks.
+- Supports distributed task locking with redis, and you can also implement yourself.
 
 `bot-state-machine` uses [private class fields](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Class_fields#Private_instance_fields) to ensure data security so that it requires node >= 12
 

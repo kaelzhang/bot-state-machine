@@ -1,21 +1,30 @@
 const {State} = require('./state')
 const error = require('./error')
+const {Options} = require('./options')
 
 const {
   ensureObject,
   stateId, commandId,
   checkId,
-  COMMAND
+  COMMAND,
+
+  COMMANDS,
+  STATES,
+  OPTIONS,
+
+  CONDITIONED,
+  UPDATE_OPTIONS,
+  RUN,
+
+  RETURN_TRUE,
+  NOOP
 } = require('./util')
-
-const RETURN_TRUE = () => true
-
-const PARSE_OPTIONS = Symbol('parse-options')
 
 // If a command has sub states or has unsolved options,
 // it can not intercept into the process of another executing command,
 // No command can intercept into an executing command which has sub states
 class Command {
+  #contextId
   #id
   // #store
   // #map
@@ -28,6 +37,7 @@ class Command {
   #options
 
   constructor ({
+    contextId,
     id,
     // store,
     // map,
@@ -47,9 +57,12 @@ class Command {
     })
 
     const command = ensureObject(store, id)
-    const options = ensureObject(command, 'options')
-    this.#options = options
+    const options = ensureObject(command, OPTIONS)
+    ensureObject(command, STATES)
 
+    store[contextId][COMMANDS][id] = command
+
+    this.#contextId = contextId
     this.#id = id
     // this.#store = store
     // this.#map = map
@@ -58,15 +71,24 @@ class Command {
     this.#context = context
     this.#global = global
 
-    this._validator = RETURN_TRUE
+    this._condition = RETURN_TRUE
+    this._onError = NOOP
+    this._executor = NOOP
+
+    this.#options = new Options(options)
   }
 
   // returns state
   state (name) {
+    if (this.#global) {
+      throw error('STATE_ON_GLOBAL_COMMAND')
+    }
+
     checkId(name)
     const id = stateId(name, this.#id)
 
     const state = new State({
+      contextId: this.#id,
       id,
       // store: this.#store,
       // map: this.#stateMap,
@@ -77,33 +99,57 @@ class Command {
     return state
   }
 
-  condition (validator) {
-    this._validator = validator
+  condition (condition) {
+    this._condition = condition
     return this
   }
 
-  option (name, {
-    alias,
-    message,
-    validate
-  }) {
+  option (name, opts) {
     if (this.#global) {
       throw error('OPTIONS_ON_GLOBAL_COMMAND')
     }
 
-
+    this.#options.add(name, opts)
+    return this
   }
 
-  [PARSE_OPTIONS] (args) {
+  async [CONDITIONED] () {
+    return this._condition({
+      ...this.#context.store[this.#contextId].flags
+    })
+  }
+
+  // Update a current option
+  [UPDATE_OPTIONS] (args) {
+    const {
+      store: {
+        [this.#id]: store
+      }
+    } = this.#context
+
+    const fulfilled = this.#options.update(
+      args,
+      store.ff !== false
+    )
+
+    if (fulfilled) {
+      delete store.ff
+    } else {
+      store.ff = false
+    }
+  }
+
+  async [RUN] () {
 
   }
 
   action (executor) {
-
+    return this._executor = executor
   }
 
   catch (onError) {
-
+    this._onError = onError
+    return this
   }
 }
 
@@ -153,6 +199,7 @@ class CommandManager {
     const command = new Command({
       id,
       context: this.#context,
+      contextId: this.#contextId,
       // store: this.#store,
       // map: this.#map,
       // stateMap: this.#stateMap,

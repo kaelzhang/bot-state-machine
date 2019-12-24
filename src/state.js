@@ -2,7 +2,11 @@ const {CommandManager} = require('./command')
 const error = require('./error')
 const {
   ensureObject, create,
-  STATE
+  STATE,
+
+  FLAGS,
+  COMMANDS,
+  STATES
 } = require('./util')
 
 const NOOP = () => {}
@@ -62,6 +66,7 @@ class State {
   #flags
 
   constructor ({
+    contextId,
     id,
     // hooks,
     // only store non-configuration data in dataStore
@@ -86,7 +91,10 @@ class State {
     // this.#hooks = hooks
 
     const state = ensureObject(store, id)
-    const flags = ensureObject(state, 'flags')
+    const flags = ensureObject(state, FLAGS)
+    ensureObject(state, COMMANDS)
+
+    store[contextId][STATES][id] = state
 
     this.#flags = new Flags(flags)
     this.#cm = new CommandManager({
