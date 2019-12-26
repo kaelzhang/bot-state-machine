@@ -1,21 +1,33 @@
 class RedisSyncer {
-  constructor (redis, {}) {
+  constructor (redis, {
+    prefix = 'bot-sm'
+  } = {}) {
     this._redis = redis
+    this._prefix = prefix
   }
 
-  async lock (id) {
+  async lock ({
+    key,
+    id,
+    store,
+    distinctId
+  }) {
 
   }
 
-  async unlock () {
+  async unlock ({
+    key,
+    id,
+    store,
+    distinctId
+  }) {
 
   }
 
-  async read () {
-
-  }
-
-  async write () {
+  async refreshLock ({
+    key,
+    distinctId
+  }) {
 
   }
 }

@@ -2,43 +2,28 @@
 // - state: $
 // - command: $$
 const store = {
-  current: '$.$$buy',
-
-  // global command
-  $$cancel: {}
-
-  // root state
+  // Root state
+  // The value of a state is the flags
   $: {
-    // we should remove flags when teardown
-    flags: {
-      traceUnlocked: true
-    }
+    traceUnlocked: true
   },
 
-  // command
+  // The value of a command is the options
+  // If a command is about to run, the options will be consumed and removed
   $.$$buy: {
-    // we should remove flags when teardown
-    options: {
-      stock: '09988',
-      amount: '10'
-    },
-
-    [Symbol.for('states')]: {
-      $.$$buy.$confirm: {
-        // the same object of store['$.$$buy.$confirm']
-      }
-    }
+    stock: '09988',
+    amount: '10'
   },
 
-  // confirm state of command buy
-  $.$$buy.$confirm: {
-    flags: {
+  // If a state exits, then the flags will be removed
 
-    }
-  }
+  // $.$$buy.$confirm: {
+  //   confirmId: 'xxxxx'
+  // }
 }
 
 const redis = {
-  [`command-lock:${userId}`]: uuid,
-  [`bot-state:${userId}`]: JSON.stringify(store)
+  [`bot-sm:lock:${distinctId}`]: uuid,
+  [`bot-sm:current:${distinctId}`]: id,
+  [`bot-sm:store:${distinctId}`]: JSON.stringify(store)
 }
