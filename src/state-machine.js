@@ -1,10 +1,10 @@
-const split = require('split-string')
 const {format} = require('util')
 
 const {State} = require('./state')
 const {CommandManager} = require('./command')
 const error = require('./error')
 const {
+  split,
   create,
   ROOT_STATE_ID,
   COMMAND,
@@ -12,7 +12,7 @@ const {
 
   STATES,
 
-  CONDITIONED, UPDATE_OPTIONS
+  CONDITIONED, UPDATE_OPTIONS, FULFILLED
 } = require('./util')
 const {SimpleMemorySyncer} = require('./syncer')
 
@@ -132,13 +132,19 @@ class StateMachine {
   }
 
   async _run (id, command, args) {
+    // Do not meet the condition
     const conditioned = await command[CONDITIONED]()
     if (!conditioned) {
       return
     }
 
     if (args.length > 0) {
-      command[UPDATE_OPTIONS](args)
+      await command[UPDATE_OPTIONS](args)
+    }
+
+    // still not fulfilled
+    if (!command[FULFILLED]()) {
+      return
     }
 
     const hasSubStates = this._commandHasStates(id)

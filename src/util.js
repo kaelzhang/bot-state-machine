@@ -1,3 +1,4 @@
+const splitString = require('split-string')
 const error = require('./error')
 
 const create = () => Object.create(null)
@@ -32,15 +33,22 @@ const checkId = id => {
   }
 }
 
-// const getType = id => {
-//   if (id.startsWith(COMMAND_PREFIX)) {
-//     return COMMAND
-//   }
+const split = (s, separator) =>
+  splitString(s, {separator})
 
-//   if (id.startsWith(STATE_PREFIX)) {
-//     return STATE
-//   }
-// }
+const splitKeyValue = s => {
+  const [key, ...values] = split(s, '=')
+  return values.length
+    // foo=bar
+    ? {
+      key,
+      value: values.join('=')
+    }
+    // No key
+    : {
+      value: key
+    }
+}
 
 module.exports = {
   create,
@@ -71,9 +79,12 @@ module.exports = {
 
   RUN: Symbol('run'),
   CONDITIONED: Symbol('conditioned'),
-  SET_OPTIONS: Symbol('set-options'),
   UPDATE_OPTIONS: Symbol('update-options'),
+  FULFILLED: Symbol('fulfilled'),
 
   RETURN_TRUE: () => true,
-  NOOP: () => {}
+  NOOP: () => {},
+
+  split,
+  splitKeyValue
 }

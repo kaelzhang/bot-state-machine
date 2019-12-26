@@ -3,7 +3,7 @@ const error = require('./error')
 const {Options} = require('./options')
 
 const {
-  ensureObject,
+  ensureObject, create,
   stateId, commandId,
   checkId,
   COMMAND,
@@ -11,9 +11,11 @@ const {
   COMMANDS,
   STATES,
   OPTIONS,
+  FLAGS,
 
   CONDITIONED,
   UPDATE_OPTIONS,
+  FULFILLED,
   RUN,
 
   RETURN_TRUE,
@@ -72,7 +74,7 @@ class Command {
     this.#global = global
 
     this._condition = RETURN_TRUE
-    this._onError = NOOP
+    this._onError = null
     this._executor = NOOP
 
     this.#options = new Options(options)
@@ -114,20 +116,23 @@ class Command {
   }
 
   async [CONDITIONED] () {
-    return this._condition({
+    const condition = this._condition
+    // Should not call with this._condition,
+    //   or this object will be populated
+    return condition({
       ...this.#context.store[this.#contextId].flags
     })
   }
 
   // Update a current option
-  [UPDATE_OPTIONS] (args) {
+  async [UPDATE_OPTIONS] (args) {
     const {
       store: {
         [this.#id]: store
       }
     } = this.#context
 
-    const fulfilled = this.#options.update(
+    const fulfilled = await this.#options.update(
       args,
       store.ff !== false
     )
@@ -137,14 +142,51 @@ class Command {
     } else {
       store.ff = false
     }
+
+    // return fulfilled
+  }
+
+  [FULFILLED] () {
+    return this.#this.options.fulfilled()
   }
 
   async [RUN] () {
+    const {
+      [this.#id]: command,
+      [this.#contextId]: state
+    } = this.#context.store
 
+    const {
+      [OPTIONS]: options
+    } = command
+    command[OPTIONS] = create()
+
+    const {
+      [FLAGS]: flags
+    } = state
+
+    const action = this._executor
+
+    try {
+      return await action({
+        options,
+        flags: {
+          ...flags
+        }
+      })
+    } catch (err) {
+      const onError = this._onError
+      if (onError) {
+        return onError(err)
+      }
+
+      throw err
+    }
   }
 
   action (executor) {
-    return this._executor = executor
+    this._executor = executor
+    return this
   }
 
   catch (onError) {

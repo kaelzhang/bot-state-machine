@@ -23,7 +23,11 @@ const store = {
       amount: '10'
     },
 
-    [Symbol.for('states')]
+    [Symbol.for('states')]: {
+      $.$$buy.$confirm: {
+        // the same object of store['$.$$buy.$confirm']
+      }
+    }
   },
 
   // confirm state of command buy

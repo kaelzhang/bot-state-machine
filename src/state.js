@@ -61,6 +61,7 @@ class State {
   // #store
   // #map
   // #stateMap
+  #context
 
   #cm
   #flags
@@ -114,7 +115,7 @@ class State {
   }
 
   say (...things) {
-    const {say} = this.#store
+    const {say} = this.#context.store
     say.push(things)
   }
 
