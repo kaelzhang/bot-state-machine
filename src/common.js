@@ -6,20 +6,18 @@ const create = () => Object.create(null)
 const ensureObject = (host, key) =>
   host[key] || (host[key] = create())
 
-// const DELIMITER = '.'
+const DELIMITER = '.'
 const STATE_PREFIX = '$'
 const ROOT_STATE_ID = STATE_PREFIX
-// const COMMAND_PREFIX = '$$'
-// // const OPTION_PREFIX = '$$$'
+const COMMAND_PREFIX = '$$'
 
-// const createId = prefix => (name, parentId) =>
-//   parentId
-//     ? parentId + DELIMITER + prefix + name
-//     : prefix + name
+const createId = prefix => (name, parentId) =>
+  parentId
+    ? parentId + DELIMITER + prefix + name
+    : prefix + name
 
 // const stateId = createId(STATE_PREFIX)
-// const commandId = createId(COMMAND_PREFIX)
-// // const optionId = createId(OPTION_PREFIX)
+const commandId = createId(COMMAND_PREFIX)
 
 const REGEX_INVALID_ID = /[$.\s]/
 
@@ -54,6 +52,8 @@ module.exports = {
   create,
   ensureObject,
 
+  NOOP: () => {},
+
   // // DELIMITER,
   // STATE_PREFIX,
   ROOT_STATE_ID,
@@ -61,8 +61,7 @@ module.exports = {
   // // OPTION_PREFIX,
 
   // stateId,
-  // commandId,
-  // // optionId,
+  commandId,
 
   checkId,
 
@@ -70,10 +69,10 @@ module.exports = {
   // STATE: 'state',
 
   // // So that JSON.stringify will abandon this key
-  // COMMANDS: Symbol.for('commands'),
-  // STATES: Symbol.for('states'),
-  // OPTIONS: 'o',
-  // FLAGS: 'f',
+  COMMANDS: 'commands',
+  STATES: 'states',
+  // OPTIONS: 'options',
+  FLAGS: 'flags',
   // // getType
 
 

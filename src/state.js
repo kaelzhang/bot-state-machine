@@ -1,8 +1,7 @@
-const {CommandManager} = require('./command')
-const error = require('./error')
+const CommandManager = require('./command-manager')
+const Flags = require('./flags')
 const {
-  ensureObject, create,
-  STATE,
+  ensureObject,
 
   FLAGS,
   COMMANDS,
@@ -10,10 +9,6 @@ const {
 } = require('./common')
 
 module.exports = class State {
-
-  #id
-  #template
-
   #cm
   #flags
 
@@ -22,22 +17,26 @@ module.exports = class State {
     id,
     template
   }) {
-    this.#id = id
-    // this.#store = store
-    // this.#map = map
-    // this.#hooks = hooks
-
-    const state = ensureObject(store, id)
+    const state = ensureObject(template, id)
     const flags = ensureObject(state, FLAGS)
     ensureObject(state, COMMANDS)
 
-    store[contextId][STATES][id] = state
+    // root state has no parentId
+    if (parentId) {
+      template[parentId][STATES][id] = state
+    }
 
     this.#flags = new Flags(flags)
     this.#cm = new CommandManager({
-      context,
-      // hooks,
-      contextId: id
+      template,
+      parentId
+    })
+
+    // this.id could not be changed
+    Object.defineProperty(this, 'id', {
+      get () {
+        return id
+      }
     })
   }
 
