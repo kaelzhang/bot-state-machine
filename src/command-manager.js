@@ -1,7 +1,9 @@
 const error = require('./error')
 const {
-  checkId
+  checkId,
+  commandId
 } = require('./common')
+const Command = require('./command')
 
 module.exports = class CommandManager {
   #template
@@ -14,8 +16,9 @@ module.exports = class CommandManager {
     global = false
   }) {
     this.#template = template
-    this.#contextId = contextId
+    this.#parentId = parentId
     this.#global = global
+
     this._commands = Object.create(null)
   }
 
@@ -33,16 +36,12 @@ module.exports = class CommandManager {
 
     this._checkDuplicate(names)
 
-    const id = commandId(name, this.#contextId)
+    const id = commandId(name, this.#parentId)
 
     const command = new Command({
+      parentId: this.#parentId,
       id,
-      context: this.#context,
-      contextId: this.#contextId,
-      // store: this.#store,
-      // map: this.#map,
-      // stateMap: this.#stateMap,
-      // hooks: this.#hooks,
+      template: this.#template,
       global: this.#global
     })
 
@@ -56,42 +55,42 @@ module.exports = class CommandManager {
     return command
   }
 
-  search (name, exact) {
-    const instant = this._commands[name]
+  // search (name, exact) {
+  //   const instant = this._commands[name]
 
-    // Returns the exact match
-    if (instant) {
-      return {
-        matched: name,
-        ...instant
-      }
-    }
+  //   // Returns the exact match
+  //   if (instant) {
+  //     return {
+  //       matched: name,
+  //       ...instant
+  //     }
+  //   }
 
-    if (exact) {
-      return
-    }
-    // Else, try to find the longest match
+  //   if (exact) {
+  //     return
+  //   }
+  //   // Else, try to find the longest match
 
-    let longest
-    let l = 0
+  //   let longest
+  //   let l = 0
 
-    for (const n of Object.keys(this._commands)) {
-      if (!name.startsWith(n)) {
-        continue
-      }
+  //   for (const n of Object.keys(this._commands)) {
+  //     if (!name.startsWith(n)) {
+  //       continue
+  //     }
 
-      const {length} = n
-      if (length > l) {
-        l = length
-        longest = n
-      }
-    }
+  //     const {length} = n
+  //     if (length > l) {
+  //       l = length
+  //       longest = n
+  //     }
+  //   }
 
-    if (longest) {
-      return {
-        matched: longest,
-        ...this._commands[longest]
-      }
-    }
-  }
+  //   if (longest) {
+  //     return {
+  //       matched: longest,
+  //       ...this._commands[longest]
+  //     }
+  //   }
+  // }
 }
