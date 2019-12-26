@@ -22,7 +22,7 @@ const template = {
     // root state has a traceUnlocked flag
     flags: {
       tradeUnlocked: {
-        onchange
+        change
       }
     },
 
@@ -37,7 +37,7 @@ const template = {
   $.$$buy: {
     type: COMMAND,
     id: '$.$$buy',
-    parent: '$',
+    parentId: '$',
 
     // we should remove flags when teardown
     options: {
@@ -82,7 +82,7 @@ const template = {
   $.$$buy.$need-confirm.$$confirm: {
     type: COMMAND,
     id: '$.$$buy.$need-confirm.$$confirm',
-    parent: '$.$$buy.$need-confirm',
+    parentId: '$.$$buy.$need-confirm',
 
     action () {
 

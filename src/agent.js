@@ -1,3 +1,12 @@
+module.exports = class Agent {
+  constructor (template, options) {
+    this._template = template
+    this._options = options
+  }
+
+
+}
+
 _getCurrentState () {
   const {current} = this._store
   const {
