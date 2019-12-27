@@ -10,7 +10,6 @@ const {
 
   COMMANDS,
   STATES,
-  OPTIONS,
   // FLAGS,
 
   // CONDITIONED,
@@ -45,7 +44,6 @@ module.exports = class Command {
     global
   }) {
     const command = ensureObject(template, id)
-    const options = ensureObject(command, OPTIONS)
     ensureObject(command, STATES)
 
     template[parentId][COMMANDS][id] = command
@@ -55,7 +53,7 @@ module.exports = class Command {
     this.#template = template
     this.#global = global
 
-    this.#options = new Options(options)
+    this.#options = new Options(command)
     this.#command = command
   }
 
