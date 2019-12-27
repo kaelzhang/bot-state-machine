@@ -52,6 +52,9 @@ const template = {
 
         }
       },
+      o: {
+        // stock
+      },
       amount
     },
 

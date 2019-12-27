@@ -71,8 +71,10 @@ module.exports = {
   // // So that JSON.stringify will abandon this key
   COMMANDS: 'commands',
   STATES: 'states',
-  // OPTIONS: 'options',
   FLAGS: 'flags',
+
+  OPTIONS: 'options',
+  OPTION_LIST: 'optionList',
   // // getType
 
 
