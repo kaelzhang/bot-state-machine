@@ -1,6 +1,7 @@
-// prefix
+// Prefixes
 // - state: $
 // - command: $$
+
 const template = {
   // global command
   $$cancel: {
@@ -39,9 +40,18 @@ const template = {
     id: '$.$$buy',
     parentId: '$',
 
-    // we should remove flags when teardown
     options: {
-      stock,
+      stock: {
+        message: 'what stock',
+        // If the validation fails
+        // - If the options are partial fulfilled,
+        //    then do nothing, do not apply new option
+        // - If the command just begins to apply options,
+        //    then skip the command and just return to parent state
+        validate () {
+
+        }
+      },
       amount
     },
 
@@ -58,8 +68,13 @@ const template = {
     action () {
       // after run,
       // If returns
-      // - state: then back to the state
+      // - state: then go to the state
       // - otherwise: the root state
+    },
+
+    catch (err) {
+      // If the action encounters any uncaught error, then goes into here.
+      // Then go to some state depends on the return value
     }
   },
 

@@ -32,7 +32,7 @@ module.exports = class State {
       parentId
     })
 
-    // this.id could not be changed
+    // this.id should never be changed by users
     Object.defineProperty(this, 'id', {
       get () {
         return id

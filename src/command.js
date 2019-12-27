@@ -1,83 +1,62 @@
-const {State} = require('./state')
+const State = require('./state')
 const error = require('./error')
-const {Options} = require('./command-options')
+const Options = require('./command-options')
 
 const {
-  ensureObject, create,
-  stateId, commandId,
-  checkId,
-  COMMAND,
+  ensureObject,
+
+  stateId, checkId,
+  // COMMAND,
 
   COMMANDS,
   STATES,
   OPTIONS,
-  FLAGS,
+  // FLAGS,
 
-  CONDITIONED,
-  UPDATE_OPTIONS,
-  FULFILLED,
-  RUN,
+  // CONDITIONED,
+  // UPDATE_OPTIONS,
+  // FULFILLED,
+  // RUN,
 
-  RETURN_TRUE,
-  NOOP
-} = require('./util')
+  // RETURN_TRUE,
+  // NOOP
+} = require('./common')
 
 // If a command has sub states or has unsolved options,
 // it can not intercept into the process of another executing command,
 // No command can intercept into an executing command which has sub states
-class Command {
-  #contextId
+module.exports = class Command {
+  #parentId
   #id
-  // #store
-  // #map
-  // #stateMap
-  // #hooks
-
-  #context
+  #template
   #global
 
   #options
+  #command
 
   constructor ({
-    contextId,
+    parentId,
     id,
     // store,
     // map,
     // stateMap,
     // hooks,
-    context,
+    template,
     global
   }) {
-    const {
-      idMap,
-      store
-    } = context
-
-    idMap.set(id, {
-      type: COMMAND,
-      target: this
-    })
-
-    const command = ensureObject(store, id)
+    const command = ensureObject(template, id)
     const options = ensureObject(command, OPTIONS)
     ensureObject(command, STATES)
 
-    store[contextId][COMMANDS][id] = command
+    template[parentId][COMMANDS][id] = command
 
-    this.#contextId = contextId
+    this.#parentId = parentId
     this.#id = id
-    // this.#store = store
-    // this.#map = map
-    // this.#stateMap = stateMap
-    // this.#hooks = hooks
-    this.#context = context
+    this.#template = template
     this.#global = global
 
-    this._condition = RETURN_TRUE
-    this._onError = null
-    this._executor = NOOP
-
     this.#options = new Options(options)
+    this.#command = command
   }
 
   // returns state
@@ -90,20 +69,12 @@ class Command {
     const id = stateId(name, this.#id)
 
     const state = new State({
-      contextId: this.#id,
+      parentId: this.#id,
       id,
-      // store: this.#store,
-      // map: this.#stateMap,
-      // stateMap: this.#stateMap
-      context: this.#context
+      template: this.#template
     })
 
     return state
-  }
-
-  condition (condition) {
-    this._condition = condition
-    return this
   }
 
   option (name, opts) {
@@ -115,82 +86,87 @@ class Command {
     return this
   }
 
-  async [CONDITIONED] () {
-    const condition = this._condition
-    // Should not call with this._condition,
-    //   or this object will be populated
-    return condition({
-      ...this.#context.store[this.#contextId].flags
-    })
+  // async [CONDITIONED] () {
+  //   const condition = this._condition
+  //   // Should not call with this._condition,
+  //   //   or this object will be populated
+  //   return condition({
+  //     ...this.#context.store[this.#contextId].flags
+  //   })
+  // }
+
+  // // Update a current option
+  // async [UPDATE_OPTIONS] (args) {
+  //   const {
+  //     store: {
+  //       [this.#id]: store
+  //     }
+  //   } = this.#context
+
+  //   const fulfilled = await this.#options.update(
+  //     args,
+  //     store.ff !== false
+  //   )
+
+  //   if (fulfilled) {
+  //     delete store.ff
+  //   } else {
+  //     store.ff = false
+  //   }
+
+  //   // return fulfilled
+  // }
+
+  // [FULFILLED] () {
+  //   return this.#this.options.fulfilled()
+  // }
+
+  // async [RUN] () {
+  //   const {
+  //     [this.#id]: command,
+  //     [this.#contextId]: state
+  //   } = this.#context.store
+
+  //   const {
+  //     [OPTIONS]: options
+  //   } = command
+  //   command[OPTIONS] = create()
+
+  //   const {
+  //     [FLAGS]: flags
+  //   } = state
+
+  //   const action = this._executor
+
+  //   try {
+  //     return await action({
+  //       options,
+  //       flags: {
+  //         ...flags
+  //       }
+  //     })
+  //   } catch (err) {
+  //     const onError = this._onError
+  //     if (onError) {
+  //       return onError(err)
+  //     }
+
+  //     throw err
+  //   }
+  // }
+
+  condition (condition) {
+    this.#command.condition = condition
+    return this
   }
 
-  // Update a current option
-  async [UPDATE_OPTIONS] (args) {
-    const {
-      store: {
-        [this.#id]: store
-      }
-    } = this.#context
-
-    const fulfilled = await this.#options.update(
-      args,
-      store.ff !== false
-    )
-
-    if (fulfilled) {
-      delete store.ff
-    } else {
-      store.ff = false
-    }
-
-    // return fulfilled
-  }
-
-  [FULFILLED] () {
-    return this.#this.options.fulfilled()
-  }
-
-  async [RUN] () {
-    const {
-      [this.#id]: command,
-      [this.#contextId]: state
-    } = this.#context.store
-
-    const {
-      [OPTIONS]: options
-    } = command
-    command[OPTIONS] = create()
-
-    const {
-      [FLAGS]: flags
-    } = state
-
-    const action = this._executor
-
-    try {
-      return await action({
-        options,
-        flags: {
-          ...flags
-        }
-      })
-    } catch (err) {
-      const onError = this._onError
-      if (onError) {
-        return onError(err)
-      }
-
-      throw err
-    }
-  }
-
-  action (executor) {
-    this._executor = executor
+  action (action) {
+    this.#command.action = action
     return this
   }
 
   catch (onError) {
-    this._onError = onError
+    this.#command.catch = onError
     return this
   }
 }
