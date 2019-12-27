@@ -1,4 +1,4 @@
-const {StateMachine} = require('./state-machine')
+const StateMachine = require('./state-machine')
 const {
   RedisSyncer,
   SimpleMemorySyncer

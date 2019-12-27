@@ -4,21 +4,8 @@ const Options = require('./command-options')
 
 const {
   ensureObject,
-
   stateId, checkId,
-  // COMMAND,
-
-  COMMANDS,
-  STATES,
-  // FLAGS,
-
-  // CONDITIONED,
-  // UPDATE_OPTIONS,
-  // FULFILLED,
-  // RUN,
-
-  // RETURN_TRUE,
-  // NOOP
+  COMMANDS, STATES
 } = require('./common')
 
 // If a command has sub states or has unsolved options,

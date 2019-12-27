@@ -8,7 +8,6 @@ const ensureObject = (host, key) =>
 
 const DELIMITER = '.'
 const STATE_PREFIX = '$'
-const ROOT_STATE_ID = STATE_PREFIX
 const COMMAND_PREFIX = '$$'
 
 const createId = prefix => (name, parentId) =>
@@ -16,7 +15,7 @@ const createId = prefix => (name, parentId) =>
     ? parentId + DELIMITER + prefix + name
     : prefix + name
 
-// const stateId = createId(STATE_PREFIX)
+const stateId = createId(STATE_PREFIX)
 const commandId = createId(COMMAND_PREFIX)
 
 const REGEX_INVALID_ID = /[$.\s]/
@@ -56,11 +55,11 @@ module.exports = {
 
   // // DELIMITER,
   // STATE_PREFIX,
-  ROOT_STATE_ID,
+  ROOT_STATE_ID: STATE_PREFIX,
   // // COMMAND_PREFIX,
   // // OPTION_PREFIX,
 
-  // stateId,
+  stateId,
   commandId,
 
   checkId,

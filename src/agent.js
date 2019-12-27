@@ -1,141 +1,49 @@
+const uuid = require('uuid/v4')
+
+const {
+  create
+} = require('./common')
+const error = require('./error')
+
+const createKey = key =>
+  distinctId => `bot-sm:${key}:${distinctId}`
+
+const createLockKey = createKey('lock')
+const createStoreKey = createKey('store')
+
 module.exports = class Agent {
-  constructor (template, options) {
+  constructor (template, syncer, {
+    // DistinctId for the audience
+    distinctId = uuid(),
+    lockKey = createLockKey,
+    storeKey = createStoreKey
+  }) {
     this._template = template
-    this._options = options
+    this._syncer = syncer
+
+    // This is the uuid for the current task
+    // A single audience can create many tasks
+    this._uuid = uuid
+
+    this._lockKey = lockKey(distinctId)
+    this._storeKey = storeKey(distinctId)
+    this._store = null
   }
 
-
-}
-
-_getCurrentState () {
-  const {current} = this._store
-  const {
-    type,
-    target
-  } = this._idMap.get(current) || {
-    type: STATE,
-    target: this._rootState
-  }
-
-  return {
-    id: current,
-    type,
-    target
-  }
-}
-
-_commandHasStates (id) {
-  const command = this._store[id]
-  return Object.keys(command[STATES]).length > 0
-}
-
-async _runCommand ({
-  id, command, args = []
-}) {
-  this._store.say = []
-
-  await this._run(id, command, args)
-
-  const output = Promise.all(this._store.say.map(this._formatter))
-  .then(this._joiner)
-
-  delete this._store.say
-
-  return output
-}
-
-async _run (id, command, args) {
-  // Do not meet the condition
-  const conditioned = await command[CONDITIONED]()
-  if (!conditioned) {
-    return
-  }
-
-  if (args.length > 0) {
-    await command[UPDATE_OPTIONS](args)
-  }
-
-  // still not fulfilled
-  if (!command[FULFILLED]()) {
-    return
-  }
-
-  const hasSubStates = this._commandHasStates(id)
-  const locked = await this._syncer.lock(id)
-}
-
-async input (stringCommand) {
-  if (!this._rootState) {
-    throw error('ROOT_STATE_NOT_FOUND')
-  }
-
-  const [name, ...args] = split(stringCommand, {
-    separator: ' '
-  })
-
-  // Options are not allowed in global command
-  // so we only need exact search
-  const globalCommand = this._cm.search(name, true)
-
-  if (globalCommand) {
-    // Run a global command.
-    // We allow global command to run at any time.
-    return this._runCommand(globalCommand)
-  }
-
-  const {
-    id,
-    type,
-    target
-  } = this._getCurrentState()
-
-  if (type === COMMAND) {
-    // Resume an unfulfilled command
-    //   which we don't provide enough options.
-    // TODO: edge case
-    // And the command might still be executing,
-    //   and the task will be rejected by lock
-    return this._runCommand({
-      id,
-      command: target,
-      args: [stringCommand]
-    })
-  }
-  // Else there is no unfinished command,
-  //   we will search matched command within the current state
-
-  const result = target.search(name, true)
-
-  if (result) {
+  async input (message) {
     const {
-      id: commandId,
-      command
-    } = result
-
-    // The exact match
-    return this._runCommand({
-      id: commandId,
-      command,
-      args
+      success,
+      store
+    } = await this._syncer.read({
+      uuid: this._uuid,
+      lockKey: this._lockKey,
+      storeKey: this._storeKey
     })
-  }
 
-  if (this._nonExactMatch) {
-    const nonExactResult = target.search(name)
-    if (nonExactResult) {
-      const {
-        matched,
-        id: commandId,
-        command
-      } = nonExactResult
-
-      return this._runCommand({
-        id: commandId,
-        command,
-        args: [name.slice(matched.length), ...args]
-      })
+    if (!success) {
+      throw error('NOT_OWN_LOCK')
     }
-  }
 
-  throw error('UNKNOWN_COMMAND', stringCommand)
+    this._store = store
+  }
 }

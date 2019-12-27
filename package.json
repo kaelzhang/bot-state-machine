@@ -54,6 +54,7 @@
   },
   "dependencies": {
     "err-object": "^5.1.4",
-    "split-string": "^6.1.0"
+    "split-string": "^6.1.0",
+    "uuid": "^3.3.3"
   }
 }

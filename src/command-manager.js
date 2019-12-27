@@ -1,7 +1,6 @@
 const error = require('./error')
 const {
-  checkId,
-  commandId
+  checkId, commandId
 } = require('./common')
 const Command = require('./command')
 

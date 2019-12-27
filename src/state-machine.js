@@ -2,32 +2,19 @@
 
 const State = require('./state')
 const CommandManager = require('./command-manager')
-const Options = require('./options')
 const Agent = require('./agent')
-// const error = require('./error')
+const {SimpleMemorySyncer} = require('./syncer')
 const {
-  // split,
   create,
   ROOT_STATE_ID,
-  // COMMAND,
-  // STATE,
-
-  // STATES,
-
-  // CONDITIONED, UPDATE_OPTIONS, FULFILLED
-} = require('./util')
-
-
-// The default formatter is util.format
-// const DEFAULT_FORMATTER = format
-// const DEFAULT_JOINER = said => said.join('\n')
+} = require('./common')
 
 // StateMachine is controlled by administrators
 // But State and Command might be controlled by 3rd party modules
-module.exports = class StateMachineConfig {
-  constructor (options) {
-    this.options = new Options(options)
-
+module.exports = class StateMachine {
+  constructor ({
+    syncer = new SimpleMemorySyncer(),
+  }) {
     const template = this._template = create()
 
     this._cm = new CommandManager({
@@ -36,6 +23,7 @@ module.exports = class StateMachineConfig {
     })
 
     this._rootState = null
+    this._syncer = syncer
   }
 
   rootState () {
@@ -53,7 +41,7 @@ module.exports = class StateMachineConfig {
     return this._cm.add(names)
   }
 
-  agent () {
-    return new Agent(this._template, this._options)
+  agent (options) {
+    return new Agent(this._template, this._syncer, options)
   }
 }
