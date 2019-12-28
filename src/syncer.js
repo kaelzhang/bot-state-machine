@@ -74,7 +74,8 @@ class SimpleMemorySyncer {
     }
 
     return {
-      success:
+      success: true,
+      store: this._get(storeKey) || {}
     }
   }
 

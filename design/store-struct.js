@@ -11,7 +11,8 @@ const store = {
   },
 
   // The value of a command is the options
-  // If a command is about to run, the options will be consumed and removed
+  // If a command is about to be execute,
+  //   the options will be consumed and removed
   $.$$buy: {
     stock: '09988'
   },

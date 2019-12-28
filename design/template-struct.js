@@ -19,6 +19,7 @@ const template = {
   // root state
   $: {
     type: STATE,
+    id: '$',
 
     // root state has a traceUnlocked flag
     flags: {
@@ -64,11 +65,11 @@ const template = {
       }
     },
 
-    condition () {
+    condition (flags) {
       // if failed, then return to parent state
     },
 
-    action () {
+    action ({options, flags}) {
       // after run,
       // If returns
       // - state: then go to the state
@@ -85,6 +86,7 @@ const template = {
   // parent: command buy
   $.$$buy.$need-confirm: {
     type: STATE,
+    id: '$.$$buy.$need-confirm',
 
     flags: {
       confirmId: {}
