@@ -5,7 +5,8 @@ const Options = require('./command-options')
 const {
   ensureObject,
   stateId, checkId,
-  COMMANDS, STATES
+  COMMANDS, STATES,
+  COMMAND
 } = require('./common')
 
 // If a command has sub states or has unsolved options,
@@ -32,6 +33,11 @@ module.exports = class Command {
   }) {
     const command = ensureObject(template, id)
     ensureObject(command, STATES)
+
+    // Verbose
+    command.id = id
+    command.type = COMMAND
+    command.parentId = parentId
 
     template[parentId][COMMANDS][id] = command
 

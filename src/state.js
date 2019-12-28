@@ -5,7 +5,9 @@ const {
 
   FLAGS,
   COMMANDS,
-  STATES
+  STATES,
+
+  STATE
 } = require('./common')
 
 module.exports = class State {
@@ -21,8 +23,13 @@ module.exports = class State {
     const flags = ensureObject(state, FLAGS)
     ensureObject(state, COMMANDS)
 
+    // Verbose
+    state.id = id
+    state.type = STATE
+
     // root state has no parentId
     if (parentId) {
+      state.parentId = parentId
       template[parentId][STATES][id] = state
     }
 

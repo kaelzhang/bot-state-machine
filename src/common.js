@@ -1,4 +1,4 @@
-// const splitString = require('split-string')
+const splitString = require('split-string')
 const error = require('./error')
 
 const create = () => Object.create(null)
@@ -30,8 +30,8 @@ const checkId = id => {
   }
 }
 
-// const split = (s, separator) =>
-//   splitString(s, {separator})
+const split = (s, separator) =>
+  splitString(s, {separator})
 
 // const splitKeyValue = s => {
 //   const [key, ...values] = split(s, '=')
@@ -64,8 +64,8 @@ module.exports = {
 
   checkId,
 
-  // COMMAND: 'command',
-  // STATE: 'state',
+  COMMAND: 'command',
+  STATE: 'state',
 
   // // So that JSON.stringify will abandon this key
   COMMANDS: 'commands',
@@ -85,6 +85,6 @@ module.exports = {
   // RETURN_TRUE: () => true,
   // NOOP: () => {},
 
-  // split,
+  split,
   // splitKeyValue
 }
