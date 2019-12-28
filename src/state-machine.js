@@ -1,20 +1,18 @@
 // const {format} = require('util')
 
-const State = require('./state')
-const CommandManager = require('./command-manager')
-const Agent = require('./agent')
-const {SimpleMemorySyncer} = require('./syncer')
+const State = require('./template/state')
+const CommandManager = require('./template/command-manager')
+const Agent = require('./runtime/agent')
+const Options = require('./runtime/options')
 const {
   create,
   ROOT_STATE_ID,
-} = require('./common')
+} = require('./template/common')
 
 // StateMachine is controlled by administrators
 // But State and Command might be controlled by 3rd party modules
 module.exports = class StateMachine {
-  constructor ({
-    syncer = new SimpleMemorySyncer(),
-  }) {
+  constructor (options) {
     const template = this._template = create()
 
     this._cm = new CommandManager({
@@ -22,8 +20,8 @@ module.exports = class StateMachine {
       global: true
     })
 
+    this._options = new Options(options)
     this._rootState = null
-    this._syncer = syncer
   }
 
   rootState () {
@@ -41,7 +39,7 @@ module.exports = class StateMachine {
     return this._cm.add(names)
   }
 
-  agent (options) {
-    return new Agent(this._template, this._syncer, options)
+  agent (distinctId) {
+    return new Agent(this._template, distinctId, this._options)
   }
 }

@@ -2,34 +2,23 @@ const uuid = require('uuid/v4')
 
 const {
   split,
-  create,
+  // create,
   ROOT_STATE_ID,
   STATE
-} = require('./common')
-const error = require('./error')
-
-const createKey = key =>
-  distinctId => `bot-sm:${key}:${distinctId}`
-
-const createLockKey = createKey('lock')
-const createStoreKey = createKey('store')
+} = require('../template/common')
+const error = require('../error')
 
 module.exports = class Agent {
-  constructor (template, syncer, {
-    // DistinctId for the audience
-    distinctId = uuid(),
-    lockKey = createLockKey,
-    storeKey = createStoreKey
-  }) {
+  constructor (template, distinctId, options) {
     this._template = template
-    this._syncer = syncer
+    this._syncer = options.syncer
 
     // This is the uuid for the current task
     // A single audience can create many tasks
-    this._uuid = uuid
+    this._uuid = uuid()
 
-    this._lockKey = lockKey(distinctId)
-    this._storeKey = storeKey(distinctId)
+    this._lockKey = options.lockKey(distinctId)
+    this._storeKey = options.storeKey(distinctId)
     this._store = null
     this._output = []
   }
