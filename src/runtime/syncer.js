@@ -130,6 +130,10 @@ class SimpleMemorySyncer {
 
     delete this._storage[lockKey]
     this._storage[storeKey] = store
+
+    return {
+      success: true
+    }
   }
 }
 

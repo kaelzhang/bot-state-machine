@@ -1,7 +1,14 @@
 const test = require('ava')
-const log = require('util').debuglog('bot-state-machine')
-const bot_state_machine = require('../src')
+// const log = require('util').debuglog('bot-state-machine')
+const {StateMachine} = require('..')
 
-test('description', t => {
-  t.is(true, true)
+test('basic', async t => {
+  const sm = new StateMachine()
+
+  sm.rootState()
+  .command('foo')
+
+  await sm.agent().input('foo')
+
+  t.pass()
 })

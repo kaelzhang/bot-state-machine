@@ -2,13 +2,9 @@ const CommandManager = require('./command-manager')
 const Flags = require('./flags')
 const {
   ensureObject,
-
-  FLAGS,
-  COMMANDS,
-  STATES,
-
+  FLAGS, STATES,
   STATE
-} = require('./common')
+} = require('../common')
 
 module.exports = class State {
   #cm
@@ -21,7 +17,6 @@ module.exports = class State {
   }) {
     const state = ensureObject(template, id)
     const flags = ensureObject(state, FLAGS)
-    ensureObject(state, COMMANDS)
 
     // Verbose
     state.id = id
@@ -36,7 +31,7 @@ module.exports = class State {
     this.#flags = new Flags(flags)
     this.#cm = new CommandManager({
       template,
-      parentId
+      parentId: id
     })
 
     // this.id should never be changed by users

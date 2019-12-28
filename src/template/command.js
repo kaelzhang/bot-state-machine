@@ -5,7 +5,7 @@ const Options = require('./command-options')
 const {
   ensureObject,
   stateId, checkId,
-  COMMANDS, STATES,
+  STATES,
   COMMAND
 } = require('../common')
 
@@ -37,9 +37,11 @@ module.exports = class Command {
     // Verbose
     command.id = id
     command.type = COMMAND
-    command.parentId = parentId
 
-    template[parentId][COMMANDS][id] = command
+    // global command has no parentId
+    if (parentId) {
+      command.parentId = parentId
+    }
 
     this.#parentId = parentId
     this.#id = id

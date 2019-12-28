@@ -116,7 +116,7 @@ module.exports = class Agent {
 
     // Returns the exact match
     if (exactMatch) {
-      return exactMatch
+      return this._template[exactMatch]
     }
 
     if (exact) {
@@ -140,7 +140,7 @@ module.exports = class Agent {
     }
 
     if (longest) {
-      return commands[longest]
+      return this._template[commands[longest]]
     }
   }
 

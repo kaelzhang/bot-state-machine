@@ -29,9 +29,9 @@ const template = {
     },
 
     commands: {
-      $.$$buy: {
-        // $.$$buy
-      }
+      buy: '$.$$buy',
+      // trade is an alias of buy
+      trade: '$.$$buy'
     }
   },
 
