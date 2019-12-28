@@ -1,4 +1,4 @@
-const {SimpleMemorySyncer} = require('./syncer')
+const SimpleMemorySyncer = require('../syncer/memory')
 const {create} = require('../common')
 
 const createKey = key =>
