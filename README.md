@@ -19,7 +19,7 @@ Finite state machine for chat bot, which
 
 - Supports to define custom commands with options
 - Supports simplified command options
-- Supports sub states and command declarations in sub states
+- Supports sub(nested) states and command declarations in sub states
 - Only allows **a single task thread**, which means that your chat bot could apply only one task at a time globally even in distributed environment. A single-thread chat bot executes less things but fits better for voice input and interactive tasks.
 - Supports distributed task locking with redis, and you can also implement yourself.
 
@@ -31,14 +31,43 @@ Finite state machine for chat bot, which
 $ npm i bot-state-machine
 ```
 
-## Usage
+## Basic Usage
 
 ```js
 const {StateMachine} = require('bot-state-machine')
 
-const cm = new StateMachine()
+// Configurations
+//////////////////////////////////////////////////////
+const sm = new StateMachine()
+const rootState = sm.rootState()
 
-// TODO
+const Buy = rootState.comman('buy')
+.option('stock')
+.action(async function ({
+  options: {
+    stock
+  }
+}) {
+  await buyStock(stock)
+  this.say('success')
+  // If the action of a command returns `undefined`, then the
+  //  state machine will return to the root state after the command executed
+})
+// If the action function rejects, then it will go into the catch function if exists.
+.catch (function (err) {
+  this.say('failed')
+})
+
+// Agent
+//////////////////////////////////////////////////////
+
+// We could create as many agents as we want,
+//  so that we could handle arbitrary numbers of requests
+const agent = sm.agent()
+
+const output = await agent.input('buy TSLA') // or 'buy stock=TSLA'
+
+console.log(output) // success
 ```
 
 ## License

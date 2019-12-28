@@ -1,4 +1,4 @@
-// const {format} = require('util')
+const uuid = require('uuid/v4')
 
 const State = require('./template/state')
 const CommandManager = require('./template/command-manager')
@@ -39,7 +39,7 @@ module.exports = class StateMachine {
     return this._cm.add(names)
   }
 
-  agent (distinctId) {
+  agent (distinctId = uuid()) {
     return new Agent(this._template, distinctId, this._options)
   }
 }

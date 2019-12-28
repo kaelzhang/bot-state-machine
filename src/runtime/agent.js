@@ -133,7 +133,11 @@ module.exports = class Agent {
   }
 
   async _updateCommandOptions (command, args) {
+    // TODO
+  }
 
+  _isCommandFulfilled (command) {
+    return true
   }
 
   async _runCommand (command, args = []) {
@@ -145,6 +149,10 @@ module.exports = class Agent {
 
     if (args.length > 0) {
       await this._updateCommandOptions(command, args)
+    }
+
+    if (!this._isCommandFulfilled(command)) {
+      return
     }
 
     // await this._run(command, args)
