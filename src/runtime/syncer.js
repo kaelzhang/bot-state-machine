@@ -60,14 +60,21 @@ class SimpleMemorySyncer {
     return this._storage[key]
   }
 
+  _canOwn (lockKey, uuid) {
+    // If there is no lock, we could just update it
+    return !this._has(lockKey)
+      // And if we own the lock
+      || this._get(lockKey) === uuid
+  }
+
   read ({
     // univeral unique id to distinguish every task
     uuid,
     // user id
-    lockkey,
+    lockKey,
     storeKey
   }) {
-    if (this._has(lockKey) && this._get(lockKey) !== uuid) {
+    if (!this._canOwn(lockKey, uuid)) {
       return {
         success: false
       }
@@ -79,20 +86,50 @@ class SimpleMemorySyncer {
     }
   }
 
+  // Lock and update the store
   // @returns Boolean
   lock ({
     uuid,
-    // State id or command id of bot-state-machine
-    id,
     store,
-    distinctId
+    lockKey,
+    storeKey
   }) {
-    const
-    this._storage
+    // We should only create a lock when there is no lock
+    if (this._has(lockKey)) {
+      return {
+        success: false
+      }
+    }
+
+    this._storage[lockKey] = uuid
+    // TODO: make the lock expire
+
+    this._storage[storeKey] = store
   }
 
+  // Refresh the expire time of a lock.
+  // A lock must expire,
+  //  or the lock might not be released due to unexpected failure.
+  // But a lock might expire before the command
   refreshLock () {
+    // TODO
+  }
 
+  // Unlock and update the store
+  unlock ({
+    uuid,
+    store,
+    lockKey,
+    storeKey
+  }) {
+    if (!this._canOwn(lockKey, uuid)) {
+      return {
+        success: false
+      }
+    }
+
+    delete this._storage[lockKey]
+    this._storage[storeKey] = store
   }
 }
 

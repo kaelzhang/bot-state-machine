@@ -78,7 +78,7 @@ console.log(output) // success
 
 > TODO
 
-## Distributed lock: Your chat bot for a cluster
+## Distributed lock: Your chat bot for clusters
 
 > TODO
 

@@ -1,7 +1,7 @@
-const error = require('./error')
+const error = require('../error')
 const {
   checkId, commandId
-} = require('./common')
+} = require('../common')
 const Command = require('./command')
 
 module.exports = class CommandManager {

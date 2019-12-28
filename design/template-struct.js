@@ -53,11 +53,18 @@ const template = {
 
         }
       },
-      o: {
+      // s is an alias of stock,
+      // but s is not in optionList
+      s: {
         // stock
       },
       amount
     },
+
+    optionList: [
+      'stock',
+      'amount'
+    ],
 
     states: {
       $.$$buy.$need-confirm: {

@@ -1,5 +1,5 @@
-const {NOOP, create} = require('./common')
-const error = require('./error')
+const {NOOP, create} = require('../common')
+const error = require('../error')
 
 module.exports = class Flags {
   constructor (template) {

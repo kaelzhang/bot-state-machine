@@ -2,8 +2,8 @@ const {
   create,
   RETURN_TRUE,
   OPTIONS, OPTION_LIST
-} = require('./common')
-const error = require('./error')
+} = require('../common')
+const error = require('../error')
 
 const getDuplicateKey = (keys, obj) => {
   for (const key of keys) {

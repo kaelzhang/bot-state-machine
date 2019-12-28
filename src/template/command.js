@@ -1,5 +1,5 @@
 const State = require('./state')
-const error = require('./error')
+const error = require('../error')
 const Options = require('./command-options')
 
 const {
@@ -7,7 +7,7 @@ const {
   stateId, checkId,
   COMMANDS, STATES,
   COMMAND
-} = require('./common')
+} = require('../common')
 
 // If a command has sub states or has unsolved options,
 // it can not intercept into the process of another executing command,
@@ -76,75 +76,6 @@ module.exports = class Command {
     this.#options.add(name, opts)
     return this
   }
-
-  // async [CONDITIONED] () {
-  //   const condition = this._condition
-  //   // Should not call with this._condition,
-  //   //   or this object will be populated
-  //   return condition({
-  //     ...this.#context.store[this.#contextId].flags
-  //   })
-  // }
-
-  // // Update a current option
-  // async [UPDATE_OPTIONS] (args) {
-  //   const {
-  //     store: {
-  //       [this.#id]: store
-  //     }
-  //   } = this.#context
-
-  //   const fulfilled = await this.#options.update(
-  //     args,
-  //     store.ff !== false
-  //   )
-
-  //   if (fulfilled) {
-  //     delete store.ff
-  //   } else {
-  //     store.ff = false
-  //   }
-
-  //   // return fulfilled
-  // }
-
-  // [FULFILLED] () {
-  //   return this.#this.options.fulfilled()
-  // }
-
-  // async [RUN] () {
-  //   const {
-  //     [this.#id]: command,
-  //     [this.#contextId]: state
-  //   } = this.#context.store
-
-  //   const {
-  //     [OPTIONS]: options
-  //   } = command
-  //   command[OPTIONS] = create()
-
-  //   const {
-  //     [FLAGS]: flags
-  //   } = state
-
-  //   const action = this._executor
-
-  //   try {
-  //     return await action({
-  //       options,
-  //       flags: {
-  //         ...flags
-  //       }
-  //     })
-  //   } catch (err) {
-  //     const onError = this._onError
-  //     if (onError) {
-  //       return onError(err)
-  //     }
-
-  //     throw err
-  //   }
-  // }
 
   condition (condition) {
     this.#command.condition = condition

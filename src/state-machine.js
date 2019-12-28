@@ -7,7 +7,7 @@ const Options = require('./runtime/options')
 const {
   create,
   ROOT_STATE_ID,
-} = require('./template/common')
+} = require('./common')
 
 // StateMachine is controlled by administrators
 // But State and Command might be controlled by 3rd party modules
@@ -40,6 +40,6 @@ module.exports = class StateMachine {
   }
 
   agent (distinctId = uuid()) {
-    return new Agent(this._template, distinctId, this._options)
+    return new Agent(this._template, this._options.create(distinctId))
   }
 }

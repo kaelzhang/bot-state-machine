@@ -33,19 +33,22 @@ const checkId = id => {
 const split = (s, separator) =>
   splitString(s, {separator})
 
-// const splitKeyValue = s => {
-//   const [key, ...values] = split(s, '=')
-//   return values.length
-//     // foo=bar
-//     ? {
-//       key,
-//       value: values.join('=')
-//     }
-//     // No key
-//     : {
-//       value: key
-//     }
-// }
+// 'foo=bar baz' ->
+// [{key: 'foo', value: 'bar'}, {value: 'baz'}]
+const splitKeyValue = s => {
+  const [key, ...values] = split(s, '=')
+  return values.length
+    // foo=bar
+    ? {
+      key,
+      value: values.join('=')
+    }
+    // No key
+    : {
+      key: '',
+      value: key
+    }
+}
 
 module.exports = {
   create,
@@ -86,5 +89,5 @@ module.exports = {
   // NOOP: () => {},
 
   split,
-  // splitKeyValue
+  splitKeyValue
 }
