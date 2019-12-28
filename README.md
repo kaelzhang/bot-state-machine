@@ -70,6 +70,18 @@ const output = await agent.input('buy TSLA') // or 'buy stock=TSLA'
 console.log(output) // success
 ```
 
+## Flow control: define several sub states for a command
+
+> TODO
+
+## Define flags for a state
+
+> TODO
+
+## Distributed lock: Your chat bot for a cluster
+
+> TODO
+
 ## License
 
 [MIT](LICENSE)
