@@ -219,9 +219,21 @@ module.exports = class Agent {
 
   _getCommandFlags () {
     const {parentId} = this._currentCommand
+    const values = create()
+    if (!parentId) {
+      return values
+    }
 
-    // TODO: default value
-    return this._store[parentId] || {}
+    const {flags} = this._template[parentId]
+    const stored = this._store[parentId] || create()
+
+    for (const [key, config] of Object.entries(flags)) {
+      values[key] = key in stored
+        ? stored[key]
+        : config.default
+    }
+
+    return values
   }
 
   async _testCommandCondition () {
@@ -314,14 +326,12 @@ module.exports = class Agent {
   // We should swallow all command errors
   // Returns `string`
   async _runAndHandleAction (options) {
-    const command = this._currentCommand
-
     let actionErr
     let state
 
     const argument = {
       options,
-      flags: this._getCommandFlags(command)
+      flags: this._getCommandFlags()
     }
 
     try {
@@ -337,7 +347,7 @@ module.exports = class Agent {
 
     const {
       catch: onError
-    } = command
+    } = this._currentCommand
 
     if (!onError) {
       this._clearRefreshTimer()
