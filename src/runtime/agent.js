@@ -231,7 +231,7 @@ module.exports = class Agent {
     }
 
     // TODO: context
-    return condition(this._getCommandFlags())
+    return condition.call(this._stateContext, this._getCommandFlags())
   }
 
   // async _updateCommandOptions (command, args) {
@@ -305,9 +305,15 @@ module.exports = class Agent {
     this._lockRefreshTimer = null
   }
 
+  _runCommandFn (fn, argument) {
+    return this._currentCommand.parentId
+      ? fn.call(this._commandContext, argument)
+      : fn(argument)
+  }
+
   // We should swallow all command errors
   // Returns `string`
-  async _runAndHandleAction (action, options) {
+  async _runAndHandleAction (options) {
     const command = this._currentCommand
 
     let actionErr
@@ -319,9 +325,7 @@ module.exports = class Agent {
     }
 
     try {
-      state = command.parentId
-        ? await action.call(this._commandContext, argument)
-        : await action(argument)
+      state = await this._runCommandFn(this._currentAction, argument)
     } catch (err) {
       actionErr = err
     }
@@ -345,7 +349,7 @@ module.exports = class Agent {
     let onErrorErr
 
     try {
-      onErrorState = await onError(actionErr, argument)
+      onErrorState = await this._runCommandFn(onError, argument)
     } catch (err) {
       onErrorErr = err
     }
@@ -359,7 +363,7 @@ module.exports = class Agent {
     throw error('UNCAUGHT_CATCH_ERROR', onErrorErr)
   }
 
-  async _runAction (action, options) {
+  async _runAction (options) {
     this._scheduleRefreshTimer()
 
     const {actionTimeout} = this._options
@@ -372,7 +376,7 @@ module.exports = class Agent {
 
     return Promise.race([
       timeout(),
-      this._runAndHandleAction(action, options)
+      this._runAndHandleAction(options)
     ])
   }
 
@@ -425,7 +429,7 @@ module.exports = class Agent {
     // Gain the lock
     await this._lock()
 
-    const state = await this._runAction(action, options)
+    const state = await this._runAction(options)
 
     this._setState(state)
 
