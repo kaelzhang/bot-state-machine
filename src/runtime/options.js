@@ -1,3 +1,5 @@
+const util = require('util')
+
 const SimpleMemorySyncer = require('../syncer/memory')
 const {create} = require('../common')
 
@@ -7,18 +9,27 @@ const createKey = key =>
 const createLockKey = createKey('lock')
 const createStoreKey = createKey('store')
 
+const DEFAULT_FORMATTER = util.format
+const DEFAULT_JOINER = said => said.join('\n')
+
 module.exports = class Options {
   constructor ({
     syncer = new SimpleMemorySyncer(),
     lockKey = createLockKey,
     storeKey = createStoreKey,
-    commandTimeout = 5000,
-    nonExactMatch = false
+    actionTimeout = 5000,
+    lockRefreshInterval = 100,
+    nonExactMatch = false,
+    format = DEFAULT_FORMATTER,
+    join = DEFAULT_JOINER
   } = {}) {
     this.options = {
       syncer,
-      commandTimeout,
+      actionTimeout,
       nonExactMatch,
+      lockRefreshInterval,
+      format,
+      join
     }
 
     this.lockKey = lockKey

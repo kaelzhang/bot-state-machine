@@ -42,8 +42,8 @@ module.exports = class State {
     })
   }
 
-  flag (name, initialValue, onchange) {
-    this.#flags.add(name, initialValue, onchange)
+  flag (name, defaultValue, onchange) {
+    this.#flags.add(name, defaultValue, onchange)
     return this
   }
 

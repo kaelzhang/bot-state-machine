@@ -5,7 +5,7 @@ module.exports = class SimpleMemorySyncer {
   } = {}) {
     this._storage = Object.create(null)
     this._lockExpire = lockExpire
-    this._expelTimer = null
+    this._expireTimer = null
   }
 
   _has (key) {
@@ -61,13 +61,20 @@ module.exports = class SimpleMemorySyncer {
     // TODO: make the lock expire
 
     this._storage[storeKey] = store
+
+    return {
+      success: true
+    }
   }
 
   // Refresh the expire time of a lock.
   // A lock must expire,
   //  or the lock might not be released due to unexpected failure.
   // But a lock might expire before the command
-  refreshLock () {
+  refreshLock ({
+    uuid,
+    lockKey
+  }) {
     // TODO
   }
 

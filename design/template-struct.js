@@ -24,6 +24,8 @@ const template = {
     // root state has a traceUnlocked flag
     flags: {
       tradeUnlocked: {
+        // default value
+        default: false,
         change
       }
     },
@@ -81,11 +83,18 @@ const template = {
       // If returns
       // - state: then go to the state
       // - otherwise: the root state
+
+      // Context:
+      // this.say(template, ...args)
+      // this.setFlag(key, value)
     },
 
-    catch (err) {
+    catch (err, {options, flags}) {
       // If the action encounters any uncaught error, then goes into here.
       // Then go to some state depends on the return value
+
+      // Context:
+      // The same as action
     }
   },
 
