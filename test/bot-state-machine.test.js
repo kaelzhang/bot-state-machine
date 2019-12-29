@@ -7,8 +7,11 @@ test('basic', async t => {
 
   sm.rootState()
   .command('foo')
+  .action(function action () {
+    this.say('foo')
+  })
 
-  await sm.agent().input('foo')
+  const output = await sm.agent().input('foo')
 
-  t.pass()
+  t.is(output, 'foo')
 })

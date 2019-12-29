@@ -73,7 +73,7 @@ module.exports = class Agent {
     this._output = []
 
     const say = (...args) => {
-      this._output.push(...args)
+      this._output.push(args)
     }
 
     const setFlag = (key, value) => {
@@ -189,7 +189,7 @@ module.exports = class Agent {
       join
     } = this._options
 
-    const output = join(this._output.map(format))
+    const output = join(this._output.map(slices => format(...slices)))
 
     this._output.length = 0
     return output
@@ -249,7 +249,7 @@ module.exports = class Agent {
       syncer,
       lockKey,
       storeKey
-    } = this._options.syncer
+    } = this._options
 
     try {
       ({success} = await syncer.lock({
@@ -375,7 +375,7 @@ module.exports = class Agent {
     })
 
     return Promise.race([
-      timeout(),
+      timeout,
       this._runAndHandleAction(options)
     ])
   }
