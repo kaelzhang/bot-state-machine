@@ -78,7 +78,7 @@ module.exports = class SimpleMemorySyncer {
     // TODO
   }
 
-  // Unlock and update the store
+  // Unlock (if necessary and own the lock) and update the store
   unlock ({
     uuid,
     store,

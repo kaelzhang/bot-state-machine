@@ -43,6 +43,9 @@ test('integrated', async t => {
   t.is(await sm.agent('bob').input('trade'), '')
 
   t.is(await sm.agent('bob').input('buy TSLA'), 'buy TSLA')
+  t.is(await sm.agent('bob').input('buy stock=TSLA'), 'buy TSLA')
+  t.is(await sm.agent('bob').input('buy stock=TSLA haha'), 'buy TSLA')
+  t.is(await sm.agent('bob').input('buy TSLA haha'), 'buy TSLA')
 
   let hasSellErr = false
 
@@ -57,4 +60,13 @@ test('integrated', async t => {
   if (!hasSellErr) {
     t.fail('sell should fail')
   }
+
+  // Back to root state
+  t.is(await sm.agent('bob').input('cancel'), '')
+
+  await t.throwsAsync(
+    () => sm.agent('bob').input('buy'), {
+      code: 'UNKNOWN_COMMAND'
+    }
+  )
 })

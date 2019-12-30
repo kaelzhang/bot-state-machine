@@ -1,12 +1,13 @@
 const uuid = require('uuid/v4')
 const delay = require('delay')
-// const log = require('util').debuglog('bot-state-machine')
+const log = require('util').debuglog('bot-state-machine')
 
 const {
   split, splitKeyValue,
   create, ensureObject,
   ROOT_STATE_ID,
-  STATE, OPTION_LIST
+  STATE, OPTION_LIST,
+  NOOP
 } = require('../common')
 const error = require('../error')
 const State = require('../template/state')
@@ -61,6 +62,30 @@ const sanitizeState = state => state instanceof State
   ? state.id
   : ROOT_STATE_ID
 
+const runSyncer = async fn => {
+  let success
+
+  try {
+    ({success} = await fn())
+  } catch (err) {
+    success = false
+  }
+
+  return success
+}
+
+const alwaysRunAfter = async (after, fn) => {
+  try {
+    await fn()
+  } catch (err) {
+    // Run after() even if fn() rejects
+    await after()
+    throw err
+  }
+
+  await after()
+}
+
 module.exports = class Agent {
   constructor (template, options) {
     this._template = template
@@ -73,7 +98,7 @@ module.exports = class Agent {
     this._store = null
     this._currentCommand = null
     this._currentAction = null
-    this._locked = false
+    // this._locked = false
 
     this._output = []
 
@@ -148,7 +173,7 @@ module.exports = class Agent {
   }
 
   async _processInput (commandString) {
-    // log('input: %s', commandString)
+    log('input: %s', commandString)
 
     const store = this._store = await this._readStore()
 
@@ -292,30 +317,47 @@ module.exports = class Agent {
   }
 
   async _lock () {
-    let success
-
     const {
       syncer,
       lockKey,
       storeKey
     } = this._options
 
-    try {
-      ({success} = await syncer.lock({
+    const success = await runSyncer(
+      () => syncer.lock({
         uuid: this._uuid,
         store: this._store,
         lockKey,
         storeKey
-      }))
-    } catch (err) {
-      success = false
-    }
+      })
+    )
 
     if (!success) {
       throw error('LOCK_FAIL')
     }
 
-    this._locked = true
+    // this._locked = true
+  }
+
+  async _unlock () {
+    const {
+      syncer,
+      lockKey,
+      storeKey
+    } = this._options
+
+    const success = await runSyncer(
+      () => syncer.unlock({
+        uuid: this._uuid,
+        store: this._store,
+        lockKey,
+        storeKey
+      })
+    )
+
+    if (!success) {
+      // log the failure
+    }
   }
 
   async _refreshLock () {
@@ -478,25 +520,17 @@ module.exports = class Agent {
       await this._lock()
     }
 
-    const state = await this._runAction(options)
-
-    this._setState(state)
-
-    // If the command has no action, we still need to update the store,
-    // but in edge cases, another thread take control of the lock, but is ok
-    const {
-      success
-    } = await this._options.syncer.unlock({
-      uuid: this._uuid,
-      store: this._store,
-      lockKey: this._options.lockKey,
-      storeKey: this._options.storeKey
-    })
-
-    if (!success) {
-      // log the failure
-    }
-
+    await alwaysRunAfter(
+      // We always need to unlock and update the store,
+      // But in edge cases,
+      //  another thread might take control of the lock,
+      //  which will cause unlock failture, but is ok
+      () => this._unlock(),
+      async () => {
+        const state = await this._runAction(options)
+        this._setState(state)
+      }
+    )
 
     // TODO: #1
     // if (args.length > 0) {
