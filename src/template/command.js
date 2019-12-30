@@ -5,7 +5,7 @@ const Options = require('./command-options')
 const {
   ensureObject,
   stateId, checkId,
-  STATES,
+  STATES, STATE,
   COMMAND
 } = require('../common')
 
@@ -58,7 +58,7 @@ module.exports = class Command {
       throw error('STATE_ON_GLOBAL_COMMAND')
     }
 
-    checkId(name)
+    checkId(name, STATE)
     const id = stateId(name, this.#id)
 
     const state = new State({

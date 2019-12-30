@@ -1,7 +1,7 @@
 const error = require('../error')
 const {
   ensureObject,
-  COMMANDS,
+  COMMANDS, COMMAND,
   checkId, commandId
 } = require('../common')
 const Command = require('./command')
@@ -38,7 +38,7 @@ module.exports = class CommandManager {
 
   add (names) {
     const [name] = names
-    checkId(name)
+    checkId(name, COMMAND)
 
     this._checkDuplicate(names)
 

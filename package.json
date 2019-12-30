@@ -1,6 +1,6 @@
 {
   "name": "bot-state-machine",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Finite state machine for chat bot",
   "main": "src/index.js",
   "scripts": {
@@ -25,7 +25,8 @@
     "chat-bot",
     "state-machine",
     "fsm",
-    "bot-state-machine"
+    "bot-state-machine",
+    "distributed"
   ],
   "engines": {
     "node": ">= 12"

@@ -9,7 +9,7 @@ const run = async ({
 
   const root = sm.rootState()
 
-  setup(root)
+  setup(root, sm)
 
   return sm.agent(distinctId).input(input)
 }

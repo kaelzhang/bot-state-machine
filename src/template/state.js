@@ -46,15 +46,7 @@ module.exports = class State {
     return this
   }
 
-  setFlag (name, value) {
-    this.#flags.set(name, value)
-  }
-
   command (...names) {
     return this.#cm.add(names)
-  }
-
-  search (name, exact) {
-    return this.#cm.search(name, exact)
   }
 }

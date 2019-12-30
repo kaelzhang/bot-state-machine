@@ -20,13 +20,14 @@ const commandId = createId(COMMAND_PREFIX)
 
 const REGEX_INVALID_ID = /[$.\s]/
 
-const checkId = id => {
-  if (!id || typeof id !== 'string') {
-    throw error('INVALID_ID')
-  }
-
-  if (REGEX_INVALID_ID.test(id) || id.startsWith('_')) {
-    throw error('ILLEGAL_ID')
+const checkId = (id, type) => {
+  if (
+    typeof id !== 'string'
+    || !id
+    || REGEX_INVALID_ID.test(id)
+    || id.startsWith('_')
+  ) {
+    throw error(`INVALID_${type.toUpperCase()}_ID`, id)
   }
 }
 

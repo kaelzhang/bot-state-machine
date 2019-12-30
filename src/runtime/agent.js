@@ -27,7 +27,7 @@ const parse = (command, args) => {
 
     const index = keyList.indexOf(key)
     if (index === - 1) {
-      throw error('COMMAND_UNKNOWN_OPTION', key)
+      throw error('UNKNOWN_OPTION', key)
     }
 
     parsed[key] = value
@@ -477,7 +477,7 @@ module.exports = class Agent {
     const timeout = delay(actionTimeout).then(() => {
       this._clearRefreshTimer()
 
-      throw error('COMMAND_ACTION_TIMEOUT')
+      throw error('ACTION_TIMEOUT')
     })
 
     return Promise.race([

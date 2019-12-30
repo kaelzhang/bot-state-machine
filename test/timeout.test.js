@@ -48,7 +48,7 @@ test('timeout', async t => {
   ])
 
   await t.throwsAsync(() => sm.agent('bob').input('foo 4000'), {
-    code: 'COMMAND_ACTION_TIMEOUT'
+    code: 'ACTION_TIMEOUT'
   })
 })
 
