@@ -5,11 +5,19 @@ const delay = require('delay')
 const {StateMachine} = require('..')
 
 test('basic', async t => {
-  const sm = new StateMachine()
+  const sm = new StateMachine({
+    nonExactMatch: true
+  })
 
-  sm.rootState()
+  const root = sm.rootState()
   .flag('foo', false)
-  .command('buy')
+
+  root.command('sell')
+  .action(function () {
+    this.say('sell')
+  })
+
+  root.command('buy')
   .option('stock')
   .condition(function condition ({foo}) {
     t.is(foo, false)
@@ -22,9 +30,10 @@ test('basic', async t => {
     this.say(`buy ${options.stock}`)
   })
 
-  const output = await sm.agent().input('buy TSLA')
-
-  t.is(output, 'passed\nbuy TSLA')
+  t.is(await sm.agent().input('buy TSLA'), 'passed\nbuy TSLA')
+  t.is(await sm.agent().input('buy stock=TSLA'), 'passed\nbuy TSLA')
+  t.is(await sm.agent().input('buy TSLA haha'), 'passed\nbuy TSLA')
+  t.is(await sm.agent().input('buyTSLA'), 'passed\nbuy TSLA')
 })
 
 test('lock conflict', async t => {
@@ -56,10 +65,24 @@ test('lock conflict', async t => {
     },
 
     err => {
-      console.log(err)
-      t.pass()
+      t.pass(err.code, 'LOCK_FAIL')
+    }
+  )
+
+  const baz = delay(50).then(
+    () => sm.agent('bob').input('bar')
+  ).then(
+    msg => {
+      t.fail(`should fail, but get "${msg}"`)
+    },
+
+    err => {
+      t.pass(err.code, 'NOT_OWN_LOCK')
     }
   )
 
   await Promise.all([foo, bar])
+
+  const bar2 = await sm.agent('bob').input('bar')
+  t.is(bar2, 'bar', 'foo should unlock after executing')
 })

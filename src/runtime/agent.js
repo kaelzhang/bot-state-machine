@@ -17,7 +17,7 @@ const parse = (command, args) => {
 
   const {length} = args
   let i = 0
-  while (keyList.length > 0 && i < length) {
+  while (i < length) {
     const {key, value} = splitKeyValue(args[i ++])
     if (!key) {
       unnamed.push(value)
@@ -143,10 +143,12 @@ module.exports = class Agent {
     // return this._processCommandInput(commandString)
   }
 
-  _searchCommand (name, {
+  _searchCommand (commandString, {
     exact = true,
     global = false
   } = {}) {
+    const [name, ...args] = split(commandString, ' ')
+
     const {commands} = global
       ? this._template
       : this._current
@@ -155,7 +157,10 @@ module.exports = class Agent {
 
     // Returns the exact match
     if (exactMatch) {
-      return this._template[exactMatch]
+      return {
+        command: this._template[exactMatch],
+        args
+      }
     }
 
     if (exact) {
@@ -179,7 +184,10 @@ module.exports = class Agent {
     }
 
     if (longest) {
-      return this._template[commands[longest]]
+      return {
+        command: this._template[commands[longest]],
+        args: [name.slice(longest.length), ...args]
+      }
     }
   }
 
@@ -196,16 +204,17 @@ module.exports = class Agent {
   }
 
   async _processStateInput (commandString) {
-    const [name, ...args] = split(commandString, ' ')
-
-    const match = this._searchCommand(name, {global: true})
-      || this._searchCommand(name)
+    const {
+      command,
+      args
+    } = this._searchCommand(commandString, {global: true})
+      || this._searchCommand(commandString)
       || this._options.nonExactMatch
-        && this._searchCommand(name, {exact: false})
+        && this._searchCommand(commandString, {exact: false})
 
-    if (match) {
-      this._currentCommand = match
-      this._currentAction = match.action
+    if (command) {
+      this._currentCommand = command
+      this._currentAction = command.action
 
       // Run global command
       await this._runCommand(args)
@@ -240,17 +249,8 @@ module.exports = class Agent {
       return true
     }
 
-    // TODO: context
     return condition.call(this._stateContext, this._getCommandFlags())
   }
-
-  // async _updateCommandOptions (command, args) {
-  //   // TODO
-  // }
-
-  // _isCommandFulfilled (command) {
-  //   return true
-  // }
 
   async _lock () {
     let success
@@ -315,10 +315,10 @@ module.exports = class Agent {
     this._lockRefreshTimer = null
   }
 
-  _runCommandFn (fn, argument) {
+  _runCommandFn (fn, ...args) {
     return this._currentCommand.parentId
-      ? fn.call(this._commandContext, argument)
-      : fn(argument)
+      ? fn.apply(this._commandContext, args)
+      : fn(...args)
   }
 
   // We should swallow all command errors
@@ -350,14 +350,14 @@ module.exports = class Agent {
     if (!onError) {
       this._clearRefreshTimer()
 
-      throw error('UNCAUGHT_ACTION_ERROR', actionErr)
+      throw actionErr
     }
 
     let onErrorState
     let onErrorErr
 
     try {
-      onErrorState = await this._runCommandFn(onError, argument)
+      onErrorState = await this._runCommandFn(onError, actionErr, argument)
     } catch (err) {
       onErrorErr = err
     }
@@ -368,7 +368,7 @@ module.exports = class Agent {
       return sanitizeState(onErrorState)
     }
 
-    throw error('UNCAUGHT_CATCH_ERROR', onErrorErr)
+    throw onErrorErr
   }
 
   async _runAction (options) {
