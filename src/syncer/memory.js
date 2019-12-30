@@ -1,11 +1,11 @@
 // Only used for single instance
 module.exports = class SimpleMemorySyncer {
   constructor ({
-    lockExpire = 10 * 1000
+    lockExpire = 10 * 3000
   } = {}) {
     this._storage = Object.create(null)
     this._lockExpire = lockExpire
-    this._expireTimer = null
+    this._expireTimer = Object.create(null)
   }
 
   _has (key) {
@@ -21,6 +21,24 @@ module.exports = class SimpleMemorySyncer {
     return !this._has(lockKey)
       // And if we own the lock
       || this._get(lockKey) === uuid
+  }
+
+  _clearTimer (lockKey) {
+    if (this._expireTimer[lockKey]) {
+      clearTimeout(this._expireTimer[lockKey])
+      delete this._expireTimer[lockKey]
+    }
+  }
+
+  // We use setTimeout to expire a lock in MemorySyncer
+  _setTimer (lockKey) {
+    if (this._expireTimer[lockKey]) {
+      clearTimeout(this._expireTimer[lockKey])
+    }
+
+    this._expireTimer[lockKey] = setTimeout(() => {
+      delete this._storage[lockKey]
+    }, this._lockExpire)
   }
 
   read ({
@@ -62,6 +80,8 @@ module.exports = class SimpleMemorySyncer {
 
     this._storage[storeKey] = store
 
+    this._setTimer(lockKey)
+
     return {
       success: true
     }
@@ -72,10 +92,11 @@ module.exports = class SimpleMemorySyncer {
   //  or the lock might not be released due to unexpected failure.
   // But a lock might expire before the command
   refreshLock ({
-    uuid,
+    // We do not need uuid for MemorySyncer
+    // uuid,
     lockKey
   }) {
-    // TODO
+    this._setTimer(lockKey)
   }
 
   // Unlock (if necessary and own the lock) and update the store
@@ -93,6 +114,7 @@ module.exports = class SimpleMemorySyncer {
 
     delete this._storage[lockKey]
     this._storage[storeKey] = store
+    this._clearTimer(lockKey)
 
     return {
       success: true

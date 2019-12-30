@@ -9,7 +9,11 @@ const sm = module.exports = new StateMachine({
 // It is a global command
 sm.command('cancel')
 // The command has no action which means
-//  this command will make the state machine go to the root state
+//  this command will make the state machine go to the root state,
+//  which is equivalent to command `取消`
+
+sm.command('取消')
+.action(() => {})
 
 const root = sm.rootState()
 .flag(

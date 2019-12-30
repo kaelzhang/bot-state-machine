@@ -4,8 +4,8 @@
   "description": "Finite state machine for chat bot",
   "main": "src/index.js",
   "scripts": {
-    "test": "NODE_DEBUG=bot-state-machine nyc ava --timeout=10s --verbose",
-    "test:dev": "NODE_DEBUG=bot-state-machine nyc ava --timeout=10s --verbose && npm run report:dev",
+    "test": "NODE_DEBUG=bot-state-machine nyc ava --timeout=20s --verbose",
+    "test:dev": "NODE_DEBUG=bot-state-machine nyc ava --timeout=20s --verbose && npm run report:dev",
     "lint": "eslint .",
     "fix": "eslint . --fix",
     "posttest": "npm run report",

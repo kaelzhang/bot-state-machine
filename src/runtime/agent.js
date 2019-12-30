@@ -6,8 +6,7 @@ const {
   split, splitKeyValue,
   create, ensureObject,
   ROOT_STATE_ID,
-  STATE, OPTION_LIST,
-  NOOP
+  STATE, OPTION_LIST
 } = require('../common')
 const error = require('../error')
 const State = require('../template/state')
@@ -360,7 +359,7 @@ module.exports = class Agent {
     const {
       syncer,
       lockKey
-    } = this._options.syncer
+    } = this._options
 
     await syncer.refreshLock({
       uuid: this._uuid,
@@ -377,6 +376,9 @@ module.exports = class Agent {
       try {
         await this._refreshLock()
       } catch (err) {
+        // istanbul ignore next
+        log('refresh error: %s', err.stack)
+
         // Do nothing
         // If we fails to refresh the lock, then
         // - if no other command gains the lock, lucky!
@@ -474,8 +476,8 @@ module.exports = class Agent {
 
     const timeout = delay(actionTimeout).then(() => {
       this._clearRefreshTimer()
-      this._handleActionTimeout()
-      return this._currentCommand.parentId
+
+      throw error('COMMAND_ACTION_TIMEOUT')
     })
 
     return Promise.race([

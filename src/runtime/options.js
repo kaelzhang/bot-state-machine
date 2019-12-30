@@ -18,7 +18,8 @@ module.exports = class Options {
     lockKey = createLockKey,
     storeKey = createStoreKey,
     actionTimeout = 5000,
-    lockRefreshInterval = 100,
+    // Should less than Syncer::lockExpire
+    lockRefreshInterval = 1000,
     nonExactMatch = false,
     format = DEFAULT_FORMATTER,
     join = DEFAULT_JOINER

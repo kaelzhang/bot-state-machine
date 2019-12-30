@@ -9,6 +9,8 @@ test('basic', async t => {
     nonExactMatch: true
   })
 
+  sm.rootState()
+
   const root = sm.rootState()
   .flag('foo', false)
 

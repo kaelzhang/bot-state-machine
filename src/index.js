@@ -1,11 +1,7 @@
 const StateMachine = require('./state-machine')
-// const {
-//   RedisSyncer,
-//   SimpleMemorySyncer
-// } = require('./syncer')
+const SimpleMemorySyncer = require('./syncer/memory')
 
 module.exports = {
   StateMachine,
-  // RedisSyncer,
-  // SimpleMemorySyncer
+  SimpleMemorySyncer
 }

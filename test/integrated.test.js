@@ -42,7 +42,7 @@ test('integrated', async t => {
   )
 
   // global command cancel
-  t.is(await sm.agent('bob').input('cancel'), '')
+  t.is(await sm.agent('bob').input('取消'), '')
 
   // Go to StateTrade
   t.is(await sm.agent('bob').input('trade'), '')

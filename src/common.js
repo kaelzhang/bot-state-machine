@@ -56,11 +56,7 @@ module.exports = {
 
   NOOP: () => {},
 
-  // // DELIMITER,
-  // STATE_PREFIX,
   ROOT_STATE_ID: STATE_PREFIX,
-  // // COMMAND_PREFIX,
-  // // OPTION_PREFIX,
 
   stateId,
   commandId,
@@ -70,23 +66,12 @@ module.exports = {
   COMMAND: 'command',
   STATE: 'state',
 
-  // // So that JSON.stringify will abandon this key
   COMMANDS: 'commands',
   STATES: 'states',
   FLAGS: 'flags',
 
   OPTIONS: 'options',
   OPTION_LIST: 'optionList',
-  // // getType
-
-
-  // RUN: Symbol('run'),
-  // CONDITIONED: Symbol('conditioned'),
-  // UPDATE_OPTIONS: Symbol('update-options'),
-  // FULFILLED: Symbol('fulfilled'),
-
-  // RETURN_TRUE: () => true,
-  // NOOP: () => {},
 
   split,
   splitKeyValue
