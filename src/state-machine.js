@@ -9,6 +9,12 @@ const {
   ROOT_STATE_ID,
 } = require('./common')
 
+// Decouple the cirular dependency
+// CM -> C -> S -> CM
+// =>
+// CM -> C -> S + S.CM
+State.CommandManager = CommandManager
+
 // StateMachine is controlled by administrators
 // But State and Command might be controlled by 3rd party modules
 module.exports = class StateMachine {

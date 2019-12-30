@@ -1,4 +1,3 @@
-const CommandManager = require('./command-manager')
 const Flags = require('./flags')
 const {
   ensureObject,
@@ -29,7 +28,7 @@ module.exports = class State {
     }
 
     this.#flags = new Flags(flags)
-    this.#cm = new CommandManager({
+    this.#cm = new State.CommandManager({
       template,
       parentId: id
     })
