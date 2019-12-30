@@ -26,7 +26,9 @@ const template = {
       tradeUnlocked: {
         // default value
         default: false,
-        change
+        change (value, oldValue) {
+
+        }
       }
     },
 

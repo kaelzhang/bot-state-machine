@@ -1,5 +1,6 @@
 const uuid = require('uuid/v4')
 const delay = require('delay')
+// const log = require('util').debuglog('bot-state-machine')
 
 const {
   split, splitKeyValue,
@@ -98,12 +99,32 @@ module.exports = class Agent {
     const {parentId} = this._currentCommand
     const {flags} = this._template[parentId]
 
-    if (key in flags) {
-      ensureObject(this._store, parentId)[key] = value
+    if (!(key in flags)) {
+      throw error('FLAG_NOT_DEFINED', key)
+    }
+
+    const {
+      default: defaultValue,
+      change
+    } = flags[key]
+
+    const values = ensureObject(this._store, parentId)
+    const oldValue = key in values
+      ? values[key]
+      : defaultValue
+
+    // Just set the new value
+    values[key] = value
+
+    if (value === oldValue) {
       return
     }
 
-    throw error('FLAG_NOT_DEFINED', key)
+    try {
+      change.call(this._stateContext, value, oldValue)
+    } catch (err) {
+      // do nothing
+    }
   }
 
   async _readStore () {
@@ -126,7 +147,9 @@ module.exports = class Agent {
     return store
   }
 
-  async input (commandString) {
+  async _processInput (commandString) {
+    // log('input: %s', commandString)
+
     const store = this._store = await this._readStore()
 
     const {current} = store
@@ -145,6 +168,17 @@ module.exports = class Agent {
     // TODO: #1
     // The current command is not fulfilled
     // return this._processCommandInput(commandString)
+  }
+
+  async input (commandString) {
+    try {
+      await this._processInput(commandString)
+    } catch (err) {
+      err.output = this._generateOutput()
+      throw err
+    }
+
+    return this._generateOutput()
   }
 
   _searchCommand (commandString, {
@@ -208,24 +242,25 @@ module.exports = class Agent {
   }
 
   async _processStateInput (commandString) {
-    const {
-      command,
-      args
-    } = this._searchCommand(commandString, {global: true})
+    const match = this._searchCommand(commandString, {global: true})
       || this._searchCommand(commandString)
       || this._options.nonExactMatch
         && this._searchCommand(commandString, {exact: false})
 
-    if (command) {
-      this._currentCommand = command
-      this._currentAction = command.action
-
-      // Run global command
-      await this._runCommand(args)
-      return this._generateOutput()
+    if (!match) {
+      throw error('UNKNOWN_COMMAND', commandString)
     }
 
-    throw error('UNKNOWN_COMMAND', commandString)
+    const {
+      command,
+      args
+    } = match
+
+    this._currentCommand = command
+    this._currentAction = command.action
+
+    // Run global command
+    await this._runCommand(args)
   }
 
   _getCommandFlags () {
@@ -376,6 +411,13 @@ module.exports = class Agent {
   }
 
   async _runAction (options) {
+    if (!this._currentAction) {
+      // If no action,
+      //  then the command should just make the state machine go to
+      //  the root state
+      return ROOT_STATE_ID
+    }
+
     this._scheduleRefreshTimer()
 
     const {actionTimeout} = this._options
@@ -431,15 +473,10 @@ module.exports = class Agent {
 
     const options = parse(this._currentCommand, args)
 
-    if (!this._currentAction) {
-      // If no action,
-      //  then the command should just make the state machine go to
-      //  the root state
-      return
+    if (this._currentAction) {
+      // Gain the lock
+      await this._lock()
     }
-
-    // Gain the lock
-    await this._lock()
 
     const state = await this._runAction(options)
 

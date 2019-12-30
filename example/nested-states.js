@@ -52,11 +52,13 @@ const fakeBuyStock = (stock, say) => {
 }
 
 const fakeSellStock = async (stock, say) => {
+  say(`sell ${stock}`)
   throw new Error('network error')
 }
 
 StateTrade.command('sell')
 .action(async function ({options}) {
+  // Show the usage of options._
   await fakeSellStock(options._[0], this.say)
 })
 .catch(function () {
