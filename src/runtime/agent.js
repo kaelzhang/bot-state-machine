@@ -36,9 +36,11 @@ const parse = (command, args) => {
   const unnamedLength = unnamed.length
   const keyListLength = keyList.length
 
+  let rest = []
+
   if (unnamedLength > keyListLength) {
     // We just abandon redundant argument
-    unnamed.length = keyListLength
+    rest = unnamed.splice(keyListLength)
   }
 
   for (const value of unnamed) {
@@ -48,6 +50,8 @@ const parse = (command, args) => {
   if (keyList.length) {
     throw error('OPTIONS_NOT_FULFILLED', keyList)
   }
+
+  parsed._ = rest
 
   return parsed
 }

@@ -25,7 +25,7 @@ test('basic', async t => {
     return true
   })
   .action(function action ({options, flags}) {
-    t.deepEqual(options, {stock: 'TSLA'})
+    t.deepEqual(options.stock, 'TSLA')
     t.deepEqual(flags, {foo: false})
     this.say(`buy ${options.stock}`)
   })
@@ -81,7 +81,7 @@ test('lock conflict', async t => {
     }
   )
 
-  await Promise.all([foo, bar])
+  await Promise.all([foo, bar, baz])
 
   const bar2 = await sm.agent('bob').input('bar')
   t.is(bar2, 'bar', 'foo should unlock after executing')
