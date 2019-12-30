@@ -41,14 +41,10 @@ const {StateMachine} = require('bot-state-machine')
 const sm = new StateMachine()
 const rootState = sm.rootState()
 
-const Buy = rootState.comman('buy')
+const Buy = rootState.command('buy')
 .option('stock')
-.action(async function ({
-  options: {
-    stock
-  }
-}) {
-  await buyStock(stock)
+.action(async function ({options}) {
+  await buyStock(options.stock)
   this.say('success')
   // If the action of a command returns `undefined`, then the
   //  state machine will return to the root state after the command executed
@@ -70,17 +66,29 @@ const output = await agent.input('buy TSLA') // or 'buy stock=TSLA'
 console.log(output) // success
 ```
 
-## Flow control: define several sub states for a command
+### How to distinguish different users
 
-> TODO
+`sm.agent(distinctId)` has `distinctId` as the argument. `distinctId` should be unique for a certain user (audience).
 
-## Define flags for a state
+Users with different `distinctId`s are separated and have different locks, so that the chat bot can serve many users simultaneously.
 
-> TODO
+Everytime we execute `sm.agent('Bob')`, we create a new thread for Bob. And different threads share the same lock for Bob, so the bot could only do one thing for Bob at the same time.
 
-## Distributed lock: Your chat bot for clusters
+### Flow control: define several sub states for a command
 
-> TODO
+- A state can have multiple commands
+- A commands can have multiple sub states
+- The state machine will redirect to a certain state according to the return value of command `action` or `catch`
+
+[Here](example/nested-states.js) is a complex example.
+
+### Define flags for a state
+
+> TODO: document
+
+### Distributed lock: Your chat bot for clusters
+
+> TODO: document
 
 ## License
 
