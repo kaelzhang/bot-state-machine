@@ -26,6 +26,7 @@ const store = {
 }
 
 const redis = {
-  [`bot-sm:lock:${distinctId}`]: uuid,
+  [`bot-sm:lock:${distinctId}`]: chatId,
   [`bot-sm:store:${distinctId}`]: JSON.stringify(store)
 }
+

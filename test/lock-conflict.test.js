@@ -1,7 +1,5 @@
 const test = require('ava')
 const delay = require('delay')
-// const uuid = require('uuid/v4')
-// const log = require('util').debuglog('bot-state-machine')
 const {StateMachine} = require('../src')
 
 test('lock conflict', async t => {
@@ -21,12 +19,12 @@ test('lock conflict', async t => {
     this.say('bar')
   })
 
-  const foo = sm.agent('bob').input('foo')
+  const foo = sm.chat('bob').input('foo')
   .then(message => {
     t.is(message, 'foo')
   })
 
-  const bar = sm.agent('bob').input('bar')
+  const bar = sm.chat('bob').input('bar')
   .then(
     msg => {
       t.fail(`bar: should fail, but get "${msg}"`)
@@ -38,7 +36,7 @@ test('lock conflict', async t => {
   )
 
   const baz = delay(100).then(
-    () => sm.agent('bob').input('bar')
+    () => sm.chat('bob').input('bar')
   ).then(
     msg => {
       t.fail(`baz: should fail, but get "${msg}"`)
@@ -51,6 +49,6 @@ test('lock conflict', async t => {
 
   await Promise.all([foo, bar, baz])
 
-  const bar2 = await sm.agent('bob').input('bar')
+  const bar2 = await sm.chat('bob').input('bar')
   t.is(bar2, 'bar', 'foo should unlock after executing')
 })

@@ -11,7 +11,7 @@ const run = async ({
 
   setup(root, sm)
 
-  return sm.agent(distinctId).input(input)
+  return sm.chat(distinctId).input(input)
 }
 
 module.exports = {

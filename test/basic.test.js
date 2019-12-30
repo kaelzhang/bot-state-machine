@@ -1,7 +1,4 @@
 const test = require('ava')
-// const delay = require('delay')
-// const uuid = require('uuid/v4')
-// const log = require('util').debuglog('bot-state-machine')
 const {StateMachine} = require('../src')
 
 test('basic', async t => {
@@ -32,8 +29,8 @@ test('basic', async t => {
     this.say(`buy ${options.stock}`)
   })
 
-  t.is(await sm.agent().input('buy TSLA'), 'passed\nbuy TSLA')
-  t.is(await sm.agent().input('buy stock=TSLA'), 'passed\nbuy TSLA')
-  t.is(await sm.agent().input('buy TSLA haha'), 'passed\nbuy TSLA')
-  t.is(await sm.agent().input('buyTSLA'), 'passed\nbuy TSLA')
+  t.is(await sm.chat().input('buy TSLA'), 'passed\nbuy TSLA')
+  t.is(await sm.chat().input('buy stock=TSLA'), 'passed\nbuy TSLA')
+  t.is(await sm.chat().input('buy TSLA haha'), 'passed\nbuy TSLA')
+  t.is(await sm.chat().input('buyTSLA'), 'passed\nbuy TSLA')
 })

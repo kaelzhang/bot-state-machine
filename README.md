@@ -50,29 +50,29 @@ const Buy = rootState.command('buy')
   //  state machine will return to the root state after the command executed
 })
 // If the action function rejects, then it will go into the catch function if exists.
-.catch (function (err) {
+.catch(function (err) {
   this.say('failed')
 })
 
-// Agent
+// Chat
 //////////////////////////////////////////////////////
 
-// We could create as many agents as we want,
+// We could create as many chat tasks as we want,
 //  so that we could handle arbitrary numbers of requests
-const agent = sm.agent()
+const chat = sm.chat()
 
-const output = await agent.input('buy TSLA') // or 'buy stock=TSLA'
+const output = await chat.input('buy TSLA') // or 'buy stock=TSLA'
 
 console.log(output) // success
 ```
 
-### How to distinguish different users
+### How to distinguish between different users
 
-`sm.agent(distinctId)` has `distinctId` as the argument. `distinctId` should be unique for a certain user (audience).
+`sm.chat(distinctId)` has `distinctId` as the argument. `distinctId` should be unique for a certain user (audience).
 
-Users with different `distinctId`s are separated and have different locks, so that the chat bot can serve many users simultaneously.
+Users with different `distinctId`s are separated and have different isolated locks, so that the chat bot can serve many users simultaneously.
 
-Everytime we execute `sm.agent('Bob')`, we create a new thread for Bob. And different threads share the same lock for Bob, so the bot could only do one thing for Bob at the same time.
+Everytime we execute `sm.chat('Bob')`, we create a new thread for Bob. And different threads share the same lock for Bob, so the bot could only do one thing for Bob at the same time.
 
 ### Flow control: define several sub states for a command
 
@@ -80,7 +80,7 @@ Everytime we execute `sm.agent('Bob')`, we create a new thread for Bob. And diff
 - A commands can have multiple sub states
 - The state machine will redirect to a certain state according to the return value of command `action` or `catch`
 
-[Here](example/nested-states.js) is a complex example.
+[Here](example/nested-states.js) is a complex example, and its corresponding test spec locates [here](test/integrated.test.js)
 
 ### Define flags for a state
 

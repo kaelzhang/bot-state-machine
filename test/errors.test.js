@@ -1,7 +1,4 @@
 const test = require('ava')
-// const delay = require('delay')
-// const uuid = require('uuid/v4')
-// const log = require('util').debuglog('bot-state-machine')
 const {run} = require('./common')
 
 const NOOP = () => {}

@@ -1,10 +1,13 @@
 // Only used for single instance
 module.exports = class SimpleMemorySyncer {
   constructor ({
-    lockExpire = 10 * 3000
+    lockExpire = 10 * 3000,
+    // storeExpire = 10 * 1000 * 60
   } = {}) {
     this._storage = Object.create(null)
     this._lockExpire = lockExpire
+    // this._storeExpire = storeExpire
+
     this._expireTimer = Object.create(null)
   }
 
@@ -16,11 +19,11 @@ module.exports = class SimpleMemorySyncer {
     return this._storage[key]
   }
 
-  _canOwn (lockKey, uuid) {
+  _canOwn (lockKey, chatId) {
     // If there is no lock, we could just update it
     return !this._has(lockKey)
       // And if we own the lock
-      || this._get(lockKey) === uuid
+      || this._get(lockKey) === chatId
   }
 
   _clearTimer (lockKey) {
@@ -43,12 +46,12 @@ module.exports = class SimpleMemorySyncer {
 
   read ({
     // univeral unique id to distinguish every task
-    uuid,
+    chatId,
     // user id
     lockKey,
     storeKey
   }) {
-    if (!this._canOwn(lockKey, uuid)) {
+    if (!this._canOwn(lockKey, chatId)) {
       return {
         success: false
       }
@@ -63,7 +66,7 @@ module.exports = class SimpleMemorySyncer {
   // Lock and update the store
   // @returns Boolean
   lock ({
-    uuid,
+    chatId,
     store,
     lockKey,
     storeKey
@@ -75,7 +78,7 @@ module.exports = class SimpleMemorySyncer {
       }
     }
 
-    this._storage[lockKey] = uuid
+    this._storage[lockKey] = chatId
     // TODO: make the lock expire
 
     this._storage[storeKey] = store
@@ -92,8 +95,8 @@ module.exports = class SimpleMemorySyncer {
   //  or the lock might not be released due to unexpected failure.
   // But a lock might expire before the command
   refreshLock ({
-    // We do not need uuid for MemorySyncer
-    // uuid,
+    // We do not need chatId for MemorySyncer
+    // chatId,
     lockKey
   }) {
     this._setTimer(lockKey)
@@ -101,12 +104,12 @@ module.exports = class SimpleMemorySyncer {
 
   // Unlock (if necessary and own the lock) and update the store
   unlock ({
-    uuid,
+    chatId,
     store,
     lockKey,
     storeKey
   }) {
-    if (!this._canOwn(lockKey, uuid)) {
+    if (!this._canOwn(lockKey, chatId)) {
       return {
         success: false
       }

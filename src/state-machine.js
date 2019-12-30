@@ -2,7 +2,7 @@ const uuid = require('uuid/v4')
 
 const State = require('./template/state')
 const CommandManager = require('./template/command-manager')
-const Agent = require('./runtime/agent')
+const Chat = require('./runtime/chat')
 const Options = require('./runtime/options')
 const {
   create,
@@ -45,7 +45,7 @@ module.exports = class StateMachine {
     return this._cm.add(names)
   }
 
-  agent (distinctId = uuid()) {
-    return new Agent(this._template, this._options.create(distinctId))
+  chat (distinctId = uuid()) {
+    return new Chat(this._template, this._options.create(distinctId))
   }
 }

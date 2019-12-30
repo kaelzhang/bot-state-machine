@@ -81,14 +81,14 @@ const alwaysRunAfter = async (after, fn) => {
   await after()
 }
 
-module.exports = class Agent {
+module.exports = class Chat {
   constructor (template, options) {
     this._template = template
     this._options = options
 
-    // This is the uuid for the current task
+    // This is the chatId for the current chat task
     // A single audience can create many tasks
-    this._uuid = uuid()
+    this._chatId = uuid()
 
     this._store = null
     this._currentCommand = null
@@ -152,7 +152,7 @@ module.exports = class Agent {
       success,
       store
     } = await this._options.syncer.read({
-      uuid: this._uuid,
+      chatId: this._chatId,
       lockKey: this._options.lockKey,
       storeKey: this._options.storeKey
     })
@@ -320,7 +320,7 @@ module.exports = class Agent {
 
     const success = await runSyncer(
       () => syncer.lock({
-        uuid: this._uuid,
+        chatId: this._chatId,
         store: this._store,
         lockKey,
         storeKey
@@ -343,7 +343,7 @@ module.exports = class Agent {
 
     const success = await runSyncer(
       () => syncer.unlock({
-        uuid: this._uuid,
+        chatId: this._chatId,
         store: this._store,
         lockKey,
         storeKey
@@ -362,7 +362,7 @@ module.exports = class Agent {
     } = this._options
 
     await syncer.refreshLock({
-      uuid: this._uuid,
+      chatId: this._chatId,
       lockKey
     })
   }
