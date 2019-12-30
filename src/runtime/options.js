@@ -14,7 +14,9 @@ const DEFAULT_JOINER = said => said.join('\n')
 
 module.exports = class Options {
   constructor ({
-    syncer = new SimpleMemorySyncer(),
+    syncer = new SimpleMemorySyncer(
+      // lockExpire = 3000,
+    ),
     lockKey = createLockKey,
     storeKey = createStoreKey,
     actionTimeout = 5000,

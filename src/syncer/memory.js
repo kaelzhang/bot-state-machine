@@ -1,7 +1,7 @@
 // Only used for single instance
 module.exports = class SimpleMemorySyncer {
   constructor ({
-    lockExpire = 10 * 3000,
+    lockExpire = 3000,
     // storeExpire = 10 * 1000 * 60
   } = {}) {
     this._storage = Object.create(null)
