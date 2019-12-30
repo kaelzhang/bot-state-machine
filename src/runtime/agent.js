@@ -196,9 +196,7 @@ module.exports = class Agent {
   }
 
   async _processStateInput (commandString) {
-    const [name, ...args] = split(commandString, {
-      separator: ' '
-    })
+    const [name, ...args] = split(commandString, ' ')
 
     const match = this._searchCommand(name, {global: true})
       || this._searchCommand(name)
