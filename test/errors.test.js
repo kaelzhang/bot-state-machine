@@ -43,6 +43,13 @@ const ERRORS = [
     setup () {
     },
     input: 'foo'
+  }],
+  ['INVALID_RETURN_STATE', {
+    setup (root) {
+      root.command('cancel')
+      .action(() => '$')
+    },
+    input: 'cancel'
   }]
 ]
 

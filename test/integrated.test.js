@@ -16,8 +16,13 @@ test('integrated', async t => {
     }
   )
 
+  // Flag tradeUnlocked will not change,
+  //  so there will be no onchange callback
+  t.is(await sm.agent('bob').input('lock'), '')
+
   // unlock flag
   t.is(await sm.agent('bob').input('unlock'), 'trading is unlocked')
+  t.is(await sm.agent('bob').input('unlock'), 'trading is already unlocked')
 
   // Still unavailable
   await t.throwsAsync(
@@ -43,9 +48,21 @@ test('integrated', async t => {
   t.is(await sm.agent('bob').input('trade'), '')
 
   t.is(await sm.agent('bob').input('buy TSLA'), 'buy TSLA')
+  t.is(await sm.agent('bob').input('sellall'), 'failed to sell')
+
+  t.is(await sm.agent('bob').input('买入特斯拉'), 'buy 特斯拉')
+  t.is(await sm.agent('bob').input('purchase TSLA'), 'buy TSLA')
   t.is(await sm.agent('bob').input('buy stock=TSLA'), 'buy TSLA')
   t.is(await sm.agent('bob').input('buy stock=TSLA haha'), 'buy TSLA')
   t.is(await sm.agent('bob').input('buy TSLA haha'), 'buy TSLA')
+  t.is(await sm.agent('bob').input('buyallTSLA'), 'buyallTSLA')
+  t.is(await sm.agent('bob').input('buyallTSLAhahaha'), 'buyallTSLA')
+  t.is(await sm.agent('bob').input('全仓买入特斯拉'), 'buyallTSLA')
+  t.is(await sm.agent('bob').input('全仓买入特斯拉吧'), 'buyallTSLA')
+  t.is(await sm.agent('bob').input('buyall TSLA'), 'buyall TSLA')
+  t.is(await sm.agent('bob').input('全仓买入 特斯拉'), 'buyall 特斯拉')
+
+  t.is(await sm.agent('bob').input('imyourdaddy'), 'divine shield on')
 
   let hasSellErr = false
 

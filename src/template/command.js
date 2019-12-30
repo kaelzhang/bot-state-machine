@@ -72,7 +72,7 @@ module.exports = class Command {
 
   option (name, opts) {
     if (this.#global) {
-      throw error('OPTIONS_ON_GLOBAL_COMMAND')
+      throw error('OPTION_ON_GLOBAL_COMMAND')
     }
 
     this.#options.add(name, opts)
@@ -80,6 +80,10 @@ module.exports = class Command {
   }
 
   condition (condition) {
+    if (this.#global) {
+      throw error('CONDITION_ON_GLOBAL_COMMAND')
+    }
+
     this.#command.condition = condition
     return this
   }

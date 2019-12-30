@@ -58,10 +58,6 @@ const parse = (command, args) => {
   return parsed
 }
 
-const sanitizeState = state => state instanceof State
-  ? state.id
-  : ROOT_STATE_ID
-
 const runSyncer = async fn => {
   let success
 
@@ -402,6 +398,18 @@ module.exports = class Agent {
       : fn(...args)
   }
 
+  _sanitizeState (state) {
+    if (state instanceof State) {
+      return state.id
+    }
+
+    if (state === undefined) {
+      return ROOT_STATE_ID
+    }
+
+    throw error('INVALID_RETURN_STATE', state)
+  }
+
   // We should swallow all command errors
   // Returns `string`
   async _runAndHandleAction (options) {
@@ -421,7 +429,7 @@ module.exports = class Agent {
 
     if (!actionErr) {
       this._clearRefreshTimer()
-      return sanitizeState(state)
+      return this._sanitizeState(state)
     }
 
     const {
@@ -446,7 +454,7 @@ module.exports = class Agent {
     this._clearRefreshTimer()
 
     if (!onErrorErr) {
-      return sanitizeState(onErrorState)
+      return this._sanitizeState(onErrorState)
     }
 
     throw onErrorErr
@@ -506,7 +514,7 @@ module.exports = class Agent {
     this._store.current = current
   }
 
-  async _runCommand (args = []) {
+  async _runCommand (args) {
     // Do not meet the condition
     const conditioned = await this._testCommandCondition()
     if (!conditioned) {
