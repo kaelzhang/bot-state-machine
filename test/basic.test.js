@@ -23,14 +23,15 @@ test('basic', async t => {
     this.say('passed')
     return true
   })
-  .action(function action ({options, flags}) {
+  .action(function action ({options, flags, distinctId}) {
+    t.is(distinctId, 'bob')
     t.deepEqual(options.stock, 'TSLA')
     t.deepEqual(flags, {foo: false})
     this.say(`buy ${options.stock}`)
   })
 
-  t.is(await sm.chat().input('buy TSLA'), 'passed\nbuy TSLA')
-  t.is(await sm.chat().input('buy stock=TSLA'), 'passed\nbuy TSLA')
-  t.is(await sm.chat().input('buy TSLA haha'), 'passed\nbuy TSLA')
-  t.is(await sm.chat().input('buyTSLA'), 'passed\nbuy TSLA')
+  t.is(await sm.chat('bob').input('buy TSLA'), 'passed\nbuy TSLA')
+  t.is(await sm.chat('bob').input('buy stock=TSLA'), 'passed\nbuy TSLA')
+  t.is(await sm.chat('bob').input('buy TSLA haha'), 'passed\nbuy TSLA')
+  t.is(await sm.chat('bob').input('buyTSLA'), 'passed\nbuy TSLA')
 })

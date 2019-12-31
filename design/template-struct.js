@@ -5,12 +5,9 @@
 const template = {
   // global command
   $$cancel: {
-    // no states,
-    // which means it will return to root state after run
-    // whether success or fail
-
     // no action
-    // which indicates the action is
+    // which indicates it will return to root state after run
+    // whether success or fail
     // ```
     // () => {}
     // ```
@@ -21,8 +18,8 @@ const template = {
     type: STATE,
     id: '$',
 
-    // root state has a traceUnlocked flag
     flags: {
+      // root state has a traceUnlocked flag
       tradeUnlocked: {
         // default value
         default: false,

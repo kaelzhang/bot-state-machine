@@ -43,6 +43,7 @@ module.exports = class Options {
     const options = Object.assign(create(), this.options)
     options.lockKey = this.lockKey(distinctId)
     options.storeKey = this.storeKey(distinctId)
+    options.distinctId = distinctId
 
     return options
   }

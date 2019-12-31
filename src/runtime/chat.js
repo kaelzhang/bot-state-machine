@@ -420,7 +420,8 @@ module.exports = class Chat {
 
     const argument = {
       options,
-      flags: this._getCommandFlags()
+      flags: this._getCommandFlags(),
+      distinctId: this._options.distinctId
     }
 
     try {
