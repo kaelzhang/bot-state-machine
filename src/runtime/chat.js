@@ -10,6 +10,7 @@ const {
 } = require('../common')
 const error = require('../error')
 const State = require('../template/state')
+const Permissions = require('./permissions')
 
 const parse = (command, args) => {
   const keyList = [].concat(command[OPTION_LIST])
@@ -81,10 +82,25 @@ const alwaysRunAfter = async (after, fn) => {
   await after()
 }
 
+const sanitizeState = state => {
+  if (state instanceof State) {
+    return state.id
+  }
+
+  if (state === undefined) {
+    return ROOT_STATE_ID
+  }
+
+  throw error('INVALID_RETURN_STATE', state)
+}
+
 module.exports = class Chat {
-  constructor (template, options) {
+  constructor (template, options, {
+    commands
+  }) {
     this._template = template
     this._options = options
+    this._permissions = new Permissions(commands, template)
 
     // This is the chatId for the current chat task
     // A single audience can create many tasks
@@ -174,10 +190,10 @@ module.exports = class Chat {
 
     const {current} = store
 
-    this._current = current && (
+    this._current = current
       // There might be old stale data if the template upgrade
-      current in this._template
-    )
+      && (current in this._template)
+      && this._permissions.has(current)
       ? this._template[current]
       : this._template[ROOT_STATE_ID]
 
@@ -207,9 +223,9 @@ module.exports = class Chat {
   } = {}) {
     const [name, ...args] = split(commandString, ' ')
 
-    const {commands} = global
-      ? this._template
-      : this._current
+    const commands = global
+      ? this._template.commands
+      : this._permissions.filterValue(this._current.commands)
 
     const exactMatch = commands[name]
 
@@ -400,18 +416,6 @@ module.exports = class Chat {
       : fn(...args)
   }
 
-  _sanitizeState (state) {
-    if (state instanceof State) {
-      return state.id
-    }
-
-    if (state === undefined) {
-      return ROOT_STATE_ID
-    }
-
-    throw error('INVALID_RETURN_STATE', state)
-  }
-
   // We should swallow all command errors
   // Returns `string`
   async _runAndHandleAction (options) {
@@ -432,7 +436,7 @@ module.exports = class Chat {
 
     if (!actionErr) {
       this._clearRefreshTimer()
-      return this._sanitizeState(state)
+      return sanitizeState(state)
     }
 
     const {
@@ -457,7 +461,7 @@ module.exports = class Chat {
     this._clearRefreshTimer()
 
     if (!onErrorErr) {
-      return this._sanitizeState(onErrorState)
+      return sanitizeState(onErrorState)
     }
 
     throw onErrorErr
@@ -491,7 +495,8 @@ module.exports = class Chat {
   _setState (current) {
     let preset = this._template[current]
 
-    // Something wrong that the state id is invalid
+    // Something wrong that the state id is invalid.
+    // For example, there is a breaking change of template.
     if (!preset) {
       return
     }

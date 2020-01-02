@@ -50,6 +50,12 @@ module.exports = class Command {
 
     this.#options = new Options(command)
     this.#command = command
+
+    Object.defineProperty(this, 'id', {
+      get () {
+        return id
+      }
+    })
   }
 
   // returns state

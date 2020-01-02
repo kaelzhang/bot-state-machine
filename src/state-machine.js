@@ -45,7 +45,12 @@ module.exports = class StateMachine {
     return this._cm.add(names)
   }
 
-  chat (distinctId = uuid()) {
-    return new Chat(this._template, this._options.create(distinctId))
+  chat (distinctId = uuid(), {
+    // Array<string|Command|any>
+    commands
+  } = {}) {
+    return new Chat(this._template, this._options.create(distinctId), {
+      commands
+    })
   }
 }
