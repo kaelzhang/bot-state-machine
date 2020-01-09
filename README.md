@@ -66,21 +66,35 @@ const output = await chat.input('buy TSLA') // or 'buy stock=TSLA'
 console.log(output) // success
 ```
 
-### How to distinguish between different users
-
-`sm.chat(distinctId)` has `distinctId` as the argument. `distinctId` should be unique for a certain user (audience).
-
-Users with different `distinctId`s are separated and have different isolated locks, so that the chat bot can serve many users simultaneously.
-
-Everytime we execute `sm.chat('Bob')`, we create a new thread for Bob. And different threads share the same lock for Bob, so the bot could only do one thing for Bob at the same time.
-
 ### Flow control: define several sub states for a command
 
 - A state can have multiple commands
 - A commands can have multiple sub states
 - The state machine will redirect to a certain state according to the return value of command `action` or `catch`
+- A command could only go to one of its sub states, one of the parent states or root state.
 
 [Here](example/nested-states.js) is a complex example, and its corresponding test spec locates [here](test/integrated.test.js)
+
+#### Example: coin-operated turnstile
+
+There is a classic example of the [Finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine) from wikipedia, [coin-operated turnstile](https://en.wikipedia.org/wiki/Finite-state_machine#Example:_coin-operated_turnstile).
+
+```js
+const sm = new StateMachine()
+
+// Locked is an initial state
+const StateLocked = sm.rootState()
+
+const CommandCoin = StateLocked.command('coin')
+const StateUnlocked = CommandCoin.state('unlocked')
+
+// Putting a coin in the slot to unlock the turnstile
+CommandCoin.action(() => StateUnlocked)
+
+const CommandPush = StateUnlocked.command('push')
+// Pushing the arm, then the turnstile will be locked (go to the initial state)
+.action(() => StateLocked)
+```
 
 ### Define flags for a state
 
@@ -103,7 +117,19 @@ sm.command('back')
 sm.command('cancel')
 ```
 
+### How to distinguish between different users
+
+`sm.chat(distinctId)` has `distinctId` as the argument. `distinctId` should be unique for a certain user (audience).
+
+Users with different `distinctId`s are separated and have different isolated locks, so that the chat bot can serve many users simultaneously.
+
+Everytime we execute `sm.chat('Bob')`, we create a new thread for Bob. And different threads share the same lock for Bob, so the bot could only do one thing for Bob at the same time.
+
 ### Distributed lock: Your chat bot for clusters
+
+> TODO: document
+
+## API References
 
 > TODO: document
 
