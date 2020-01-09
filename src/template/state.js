@@ -34,10 +34,16 @@ module.exports = class State {
     })
 
     // this.id should never be changed by users
-    Object.defineProperty(this, 'id', {
-      get () {
-        return id
-      }
+    Object.defineProperties(this, {
+      id: {
+        get () {
+          return id
+        }
+      },
+
+      // Prevent users from creating State instance themselves，
+      //  or getting the State class
+      constructor: {}
     })
   }
 

@@ -77,7 +77,7 @@ const template = {
       // if failed, then return to parent state
     },
 
-    action ({options, flags}) {
+    action ({options, flags, distinctId, state}) {
       // after run,
       // If returns
       // - state: then go to the state
@@ -88,7 +88,7 @@ const template = {
       // this.setFlag(key, value)
     },
 
-    catch (err, {options, flags}) {
+    catch (err, {options, flags, distinctId, state}) {
       // If the action encounters any uncaught error, then goes into here.
       // Then go to some state depends on the return value
 
@@ -102,6 +102,7 @@ const template = {
   $.$$buy.$need-confirm: {
     type: STATE,
     id: '$.$$buy.$need-confirm',
+    parentId: '$.$$buy',
 
     flags: {
       confirmId: {}
@@ -124,3 +125,23 @@ const template = {
     }
   }
 }
+
+
+// Design Issues
+
+// Problem:
+// $$cancel could also go to $.$$buy.$need-confirm, so sub state is non-sense
+
+// Solve:
+// Plan A: If all states are global, then state has commands, and commands has no states
+// -> State is not safe ? NO, we can ensure the safety
+// -> Can not make sure a state only has one and only one parent state
+// Plan B: A command can only go to its sub states or parent states
+// -> How to implement ? Possible
+//    A -> B -> A
+//    A -> C -> B -> A
+
+// Problem:
+// global commands could not get the info of current state
+// Solve:
+// introduce RuntimeState

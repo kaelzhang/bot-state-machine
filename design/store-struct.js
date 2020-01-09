@@ -2,7 +2,7 @@
 // - state: $
 // - command: $$
 const store = {
-  current: '$.$$buy',
+  current: '$',
 
   // Root state
   // The value of a state is the flags

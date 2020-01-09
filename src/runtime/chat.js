@@ -6,10 +6,12 @@ const {
   split, splitKeyValue,
   create, ensureObject,
   ROOT_STATE_ID,
-  STATE, OPTION_LIST
+  // STATE,
+  OPTION_LIST
 } = require('../common')
 const error = require('../error')
 const State = require('../template/state')
+const RuntimeState = require('./state')
 const Permissions = require('./permissions')
 
 const parse = (command, args) => {
@@ -83,12 +85,15 @@ const alwaysRunAfter = async (after, fn) => {
 }
 
 const sanitizeState = state => {
-  if (state instanceof State) {
-    return state.id
-  }
-
   if (state === undefined) {
     return ROOT_STATE_ID
+  }
+
+  if (
+    state instanceof State
+    || state instanceof RuntimeState
+  ) {
+    return state.id
   }
 
   throw error('INVALID_RETURN_STATE', state)
@@ -197,9 +202,12 @@ module.exports = class Chat {
       ? this._template[current]
       : this._template[ROOT_STATE_ID]
 
-    if (this._current.type === STATE) {
-      return this._processStateInput(commandString)
-    }
+    // We only support store.current as a state for now
+    return this._processStateInput(commandString)
+
+    // if (this._current.type === STATE) {
+    //   return this._processStateInput(commandString)
+    // }
 
     // TODO: #1
     // The current command is not fulfilled
@@ -294,6 +302,11 @@ module.exports = class Chat {
 
     this._currentCommand = command
     this._currentAction = command.action
+
+    this._runtimeState = new RuntimeState({
+      id: this._current.id,
+      template: this._template
+    })
 
     // Run global command
     await this._runCommand(args)
@@ -425,7 +438,8 @@ module.exports = class Chat {
     const argument = {
       options,
       flags: this._getCommandFlags(),
-      distinctId: this._options.distinctId
+      distinctId: this._options.distinctId,
+      state: this._runtimeState
     }
 
     try {
@@ -492,8 +506,8 @@ module.exports = class Chat {
   }
 
   // - internal `boolean` whether the state is provided by bot-state-machine
-  _setState (current) {
-    let preset = this._template[current]
+  _setState (stateId) {
+    let preset = this._template[stateId]
 
     // Something wrong that the state id is invalid.
     // For example, there is a breaking change of template.
@@ -502,7 +516,7 @@ module.exports = class Chat {
     }
 
     const keep = create()
-    keep[current] = true
+    keep[stateId] = true
 
     let id = preset.parentId
 
@@ -519,7 +533,25 @@ module.exports = class Chat {
       }
     }
 
-    this._store.current = current
+    this._store.current = stateId
+  }
+
+  _checkStateId (id) {
+    if (id in this._currentCommand.states) {
+      return true
+    }
+
+    let state = this._runtimeState
+
+    while (state) {
+      if (id === state.id) {
+        return true
+      }
+
+      state = state.parent
+    }
+
+    throw error('STATE_UNREACHABLE')
   }
 
   async _runCommand (args) {
@@ -543,8 +575,9 @@ module.exports = class Chat {
       //  which will cause unlock failture, but is ok
       () => this._unlock(),
       async () => {
-        const state = await this._runAction(options)
-        this._setState(state)
+        const stateId = await this._runAction(options)
+        this._checkStateId(stateId)
+        this._setState(stateId)
       }
     )
 

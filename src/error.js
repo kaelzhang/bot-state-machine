@@ -35,6 +35,11 @@ E('CONDITION_ON_GLOBAL_COMMAND', 'condition is not allowed in global command')
 
 E('CONDITION_ON_GLOBAL_COMMAND', 'condition is not allowed in global command')
 
+E('STATE_UNREACHABLE', `only the following states are reachable:
+- the current state
+- sub states of the command
+- parent states of the current state`)
+
 const must = 'id must be a non-empty string, and not contains whitespaces, `$` or `.`, and should not start with `_`'
 
 TE('INVALID_COMMAND_ID', `command ${must}`)

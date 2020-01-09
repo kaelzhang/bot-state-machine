@@ -86,6 +86,23 @@ Everytime we execute `sm.chat('Bob')`, we create a new thread for Bob. And diffe
 
 > TODO: document
 
+### Define global commands
+
+Commands defined by `sm` (not root state) are global commands.
+
+A global command could be called at any state and could not have options, condition, or sub states.
+
+```js
+// A global command to return back to the parent state
+sm.command('back')
+.action(({state}) => state.parent)
+```
+
+```js
+// A global command to cancel everything and return to root state
+sm.command('cancel')
+```
+
 ### Distributed lock: Your chat bot for clusters
 
 > TODO: document
