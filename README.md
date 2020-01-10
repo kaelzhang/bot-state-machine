@@ -15,7 +15,7 @@
 
 # bot-state-machine
 
-Finite state machine for chat bot, which
+The server-ready Finite state machine for chat bot, which
 
 - Supports to define custom commands with options
 - Supports simplified command options
@@ -129,9 +129,105 @@ Everytime we execute `sm.chat('Bob')`, we create a new thread for Bob. And diffe
 
 > TODO: document
 
-## API References
+# API References
 
-> TODO: document
+```js
+const {
+  StateMachine,
+  SimpleMemorySyncer
+} = require('bot-state-machine')
+```
+
+## new StateMachine(options)
+
+- **options** All options are optional.
+  - **nonExactMatch?** `boolean=false`
+  - **format?** `function(tpl: string, ...values): string = util.format`
+  - **joiner?** `function(...messages): string`
+  - **actionTimeout?** `number=5000`  timeout in milliseconds before the execution of `action` and `catch` result in an `ACTION_TIMEOUT` error.
+  - **lockRefreshInterval?** `number=1000` advanced option. This option should be less than `Syncer::options.lockExpire`, and it is used to prevent the lock from being expired before the command action finished executing.
+  - **lockKey?** `function(distinctId):string` the method to create the `lockKey` for each distinct user.
+  - **storeKey?** `function(distinctId):string` to create the key to save the current state for each distinct user.
+
+### sm.rootState(): State
+
+Create a root state.
+
+### sm.command(...names): Command
+
+- **names** `Array<string>` you can create a command with a name and multiple aliases
+
+Create a global command.
+
+### sm.chat(distinctId, {commands}): Chat
+
+Create a new conversation
+
+## Chat
+
+### await chat.input(message): string
+
+- **message** `string`
+
+Receives the user input and return a Promise of the output by chat bot.
+
+## Command
+
+### command.state(stateName): State
+
+- **stateName** `string` the name of the sub state. The name should be unique among the sub states of the `command`.
+
+### command.condition(condition): this
+
+- **condition** `function(flags):boolean` If the function returns false, then the command will skip executing `action` or `catch`. If we need give user some feedback or hint, we could use `this.say()` method in the function. `condition` supports both async and sync functions.
+  - **flags** `object` the shadow copy of the key-value pairs of all flags defined in current state.
+
+Check if the command meet the requirement to execute.
+
+```js
+// Pay attention that we could not use an arrow function here if we need to use `this.say`
+someCommand.condition(function ({enabled}) {
+  if (!enable) {
+    this.say('not enabled')
+  }
+
+  return enabled
+})
+```
+
+### command.option(name, config): this
+
+- **name** `string` the name of the option
+- **config** `object`
+  - **alias** `Array<string>` the list of aliases of the option
+
+Create a option for the `command`.
+
+### command.action(executor): this
+
+### command.catch(onError): this
+
+## State
+
+### state.flag(): this
+
+### state.command(...names): Command
+
+## Context Methods
+
+### this.say(template, ...values): void
+
+Could be used in:
+- command condition
+- command action
+- command catch
+- onchange method of state flag
+
+### this.setFlag(name, value): void
+
+Could be used inn:
+- command action
+- command catch
 
 ## License
 
