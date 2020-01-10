@@ -19,11 +19,11 @@ const wrapValidator = validator => async (value, key) => {
   try {
     passed = await validator(value, key)
   } catch (err) {
-    throw error('OPTION_VALIDATE_ERROR', key, value, err.message)
+    throw error('OPTION_VALIDATION_ERROR', key, value, err.message)
   }
 
   if (!passed) {
-    throw error('OPTION_VALIDATE_FAIL', key, value)
+    throw error('OPTION_VALIDATION_NOT_PASS', key, value)
   }
 
   return passed
@@ -38,7 +38,7 @@ module.exports = class Options {
   add (name, {
     alias = [],
     // message = name,
-    validate = RETURN_TRUE
+    validate
   } = {}) {
     alias = Array.from(alias)
 
@@ -52,7 +52,9 @@ module.exports = class Options {
     const schema = {
       // TODO: #1
       // message,
-      validate: wrapValidator(validate)
+      validate: validate
+        ? wrapValidator(validate)
+        : RETURN_TRUE
     }
 
     for (const n of names) {

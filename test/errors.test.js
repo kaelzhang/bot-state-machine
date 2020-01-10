@@ -1,4 +1,5 @@
 const test = require('ava')
+const delay = require('delay')
 const {run} = require('./common')
 
 const NOOP = () => {}
@@ -109,6 +110,35 @@ const ERRORS = [
       root.command('foo')
       .state('$foo')
     }
+  }],
+  [(err, t) => {
+    t.is(err.code, 'OPTION_VALIDATION_ERROR')
+    t.deepEqual(err.args, ['bar', 'baz', 'foo'])
+  }, {
+    setup (root) {
+      root.command('foo')
+      .option('bar', {
+        async validate () {
+          await delay(10)
+          throw new Error('foo')
+        }
+      })
+    },
+    input: 'foo baz'
+  }],
+  [(err, t) => {
+    t.is(err.code, 'OPTION_VALIDATION_NOT_PASS')
+    t.deepEqual(err.args, ['bar', 'baz'])
+  }, {
+    setup (root) {
+      root.command('foo')
+      .option('bar', {
+        validate () {
+          return false
+        }
+      })
+    },
+    input: 'foo baz'
   }]
 ]
 
@@ -120,6 +150,8 @@ ERRORS.forEach(([code, ...args], i) => {
       if (Array.isArray(code)) {
         t.is(err.code, code[0])
         t.is(err.originalError.code, code[1])
+      } else if (typeof code === 'function') {
+        code(err, t)
       } else {
         t.is(err.code, code)
       }

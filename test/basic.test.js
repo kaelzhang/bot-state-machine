@@ -17,7 +17,9 @@ test('basic', async t => {
   })
 
   root.command('buy')
-  .option('stock')
+  .option('stock', {
+    validate: () => true
+  })
   .condition(function condition ({foo}) {
     t.is(foo, false)
     this.say('passed')

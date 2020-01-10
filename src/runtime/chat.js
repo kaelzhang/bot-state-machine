@@ -7,14 +7,14 @@ const {
   create, ensureObject,
   ROOT_STATE_ID,
   // STATE,
-  OPTION_LIST
+  OPTION_LIST, OPTIONS
 } = require('../common')
 const error = require('../error')
 const State = require('../template/state')
 const RuntimeState = require('./state')
 const Permissions = require('./permissions')
 
-const parse = (command, args) => {
+const parse = async (command, args) => {
   const keyList = [].concat(command[OPTION_LIST])
   const parsed = Object.create(null)
   const unnamed = []
@@ -56,6 +56,19 @@ const parse = (command, args) => {
   }
 
   parsed._ = rest
+
+  const tasks = []
+  const options = command[OPTIONS]
+
+  for (const key of command[OPTION_LIST]) {
+    const {validate} = options[key]
+    if (validate) {
+      tasks.push(validate(parsed[key], key))
+    }
+  }
+
+  // Validate
+  await Promise.all(tasks)
 
   return parsed
 }
@@ -568,7 +581,7 @@ module.exports = class Chat {
       return
     }
 
-    const options = parse(this._currentCommand, args)
+    const options = await parse(this._currentCommand, args)
 
     if (this._currentAction) {
       // Gain the lock

@@ -46,4 +46,8 @@ TE('INVALID_COMMAND_ID', `command ${must}`)
 
 TE('INVALID_STATE_ID', `state ${must}`)
 
+E('OPTION_VALIDATION_ERROR', 'option "%s" with value "%s" is validated as invalid, reason: %s')
+
+E('OPTION_VALIDATION_NOT_PASS', 'option "%s" with value "%s" is validated as invalid')
+
 module.exports = error

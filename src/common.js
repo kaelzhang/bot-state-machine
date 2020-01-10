@@ -56,6 +56,7 @@ module.exports = {
   ensureObject,
 
   NOOP: () => {},
+  RETURN_TRUE: () => true,
 
   ROOT_STATE_ID: STATE_PREFIX,
 
