@@ -144,7 +144,7 @@ const {
   - **nonExactMatch?** `boolean=false`
   - **format?** `function(tpl: string, ...values): string = util.format`
   - **joiner?** `function(...messages): string`
-  - **actionTimeout?** `number=5000`  timeout in milliseconds before the execution of `action` and `catch` result in an `ACTION_TIMEOUT` error.
+  - **actionTimeout?** `number=5000`  timeout in milliseconds before the execution of `action` and `catch` result in an `COMMAND_TIMEOUT` error.
   - **lockRefreshInterval?** `number=1000` advanced option. This option should be less than `Syncer::options.lockExpire`, and it is used to prevent the lock from being expired before the command action finished executing.
   - **lockKey?** `function(distinctId):string` the method to create the `lockKey` for each distinct user.
   - **storeKey?** `function(distinctId):string` to create the key to save the current state for each distinct user.
@@ -158,6 +158,11 @@ Create a root state.
 - **names** `Array<string>` you can create a command with a name and multiple aliases
 
 Create a global command.
+
+A global command could **NOT** define:
+- condition
+- option
+- sub states
 
 ### sm.chat(distinctId, {commands}): Chat
 
@@ -200,22 +205,81 @@ someCommand.condition(function ({enabled}) {
 - **name** `string` the name of the option
 - **config** `object`
   - **alias** `Array<string>` the list of aliases of the option
+  - **validate**
 
 Create a option for the `command`.
 
 ### command.action(executor): this
 
+- **executor** `function(arg: CommandArgument): TargetState` Either async or sync function to do real things fo the command
+
+Execute the command and go to the target state.
+
+```ts
+interface CommandArgument {
+  // The options for the command
+  options: object
+  // The shadow copy of the flags of the current state
+  flags: object
+  // The runtime state which the state machine is currently at.
+  state: RuntimeState
+}
+```
+
+```ts
+interface RuntimeState {
+  // The id of the current state
+  get id: string
+  // The parent state of the current state
+  get parent: RuntimeState
+}
+```
+
+```ts
+type TargetState = State
+  // So that we can go back to a parent state
+  | RuntimeState
+  // If the command action returns undefined,
+  //   then the state machine will go the root state
+  | undefined
+```
+
 ### command.catch(onError): this
+
+- **onError** `function(err: Error, arg: CommandArgument): TargetState`
+  - **err** `Error` the error thrown by command action
+  - **arg** the same as the argument of the action executor
+
+If the command action throws an error, then `onError` will be invoked. If `onError` throws an error, it will result in a `COMMAND_ERROR` error.
 
 ## State
 
-### state.flag(): this
+### state.flag(key, defaultValue, onchange): this
+
+- **key** `string` the name of the key
+- **defaultValue** `any` the default value of the flag
+- **onchange** `function(newValue, oldValue)` invokes if the value of the flag is changed.
+
+Defines a flag
 
 ### state.command(...names): Command
+
+Defines a command which is only available at the current state.
 
 ## Context Methods
 
 ### this.say(template, ...values): void
+
+- **template** `string`
+- **values** `Array<any>`
+
+Say something to the user. The argument of the method is the same as Node.js `util.format()`, and will be formatted by `options.format`
+
+```js
+this.say('Hello %s!', 'world')
+```
+
+`options.format` is designed to provide better support for i18n.
 
 Could be used in:
 - command condition

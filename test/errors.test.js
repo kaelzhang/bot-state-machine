@@ -4,7 +4,7 @@ const {run} = require('./common')
 const NOOP = () => {}
 
 const ERRORS = [
-  ['FLAG_NOT_DEFINED', {
+  [['COMMAND_ERROR', 'FLAG_NOT_DEFINED'], {
     setup (root) {
       root.command('foo')
       .action(async function () {
@@ -13,7 +13,7 @@ const ERRORS = [
     },
     input: 'foo'
   }],
-  ['FLAG_NOT_DEFINED', {
+  [['COMMAND_ERROR', 'FLAG_NOT_DEFINED'], {
     setup (root) {
       root.command('foo')
       .action(async function () {
@@ -114,8 +114,19 @@ const ERRORS = [
 
 ERRORS.forEach(([code, ...args], i) => {
   test(`${i}: error: ${code}`, async t => {
-    await t.throwsAsync(() => run(...args), {
-      code
-    })
+    try {
+      await run(...args)
+    } catch (err) {
+      if (Array.isArray(code)) {
+        t.is(err.code, code[0])
+        t.is(err.originalError.code, code[1])
+      } else {
+        t.is(err.code, code)
+      }
+
+      return
+    }
+
+    t.fail('should fail')
   })
 })

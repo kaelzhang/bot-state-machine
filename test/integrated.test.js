@@ -65,7 +65,8 @@ test('integrated', async t => {
   try {
     await sm.chat('bob').input('sell TSLA')
   } catch (err) {
-    t.is(err.message, 'failed to sell')
+    t.is(err.code, 'COMMAND_ERROR')
+    t.is(err.originalError.message, 'failed to sell')
     t.is(err.output, 'sell TSLA')
     hasSellErr = true
   }

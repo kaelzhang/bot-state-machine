@@ -48,7 +48,7 @@ test('timeout', async t => {
   ])
 
   await t.throwsAsync(() => sm.chat('bob').input('foo 4000'), {
-    code: 'ACTION_TIMEOUT'
+    code: 'COMMAND_TIMEOUT'
   })
 })
 

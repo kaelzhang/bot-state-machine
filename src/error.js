@@ -19,7 +19,9 @@ E('LOCK_FAIL', 'fail to lock')
 TE('INVALID_RETURN_STATE',
   'the return state of a command should either be a State or undefined')
 
-E('ACTION_TIMEOUT', 'command action timed out')
+E('COMMAND_TIMEOUT', 'command action timed out')
+
+E('COMMAND_ERROR', 'command fails to run, reason: %s')
 
 E('DUPLICATE_COMMAND', 'command "%s" is already defined')
 
@@ -30,8 +32,6 @@ E('DUPLICATE_FLAG', 'flag "%s" is already defined')
 E('STATE_ON_GLOBAL_COMMAND', 'sub states are not allowed in global command')
 
 E('OPTION_ON_GLOBAL_COMMAND', 'options are not allowed in global command')
-
-E('CONDITION_ON_GLOBAL_COMMAND', 'condition is not allowed in global command')
 
 E('CONDITION_ON_GLOBAL_COMMAND', 'condition is not allowed in global command')
 

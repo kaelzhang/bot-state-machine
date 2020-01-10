@@ -13,6 +13,22 @@ const getDuplicateKey = (keys, obj) => {
   }
 }
 
+const wrapValidator = validator => async (value, key) => {
+  let passed
+
+  try {
+    passed = await validator(value, key)
+  } catch (err) {
+    throw error('OPTION_VALIDATE_ERROR', key, value, err.message)
+  }
+
+  if (!passed) {
+    throw error('OPTION_VALIDATE_FAIL', key, value)
+  }
+
+  return passed
+}
+
 module.exports = class Options {
   constructor (command) {
     this._options = command[OPTIONS] = create()
@@ -21,7 +37,7 @@ module.exports = class Options {
 
   add (name, {
     alias = [],
-    message = name,
+    // message = name,
     validate = RETURN_TRUE
   } = {}) {
     alias = Array.from(alias)
@@ -34,8 +50,9 @@ module.exports = class Options {
     }
 
     const schema = {
-      message,
-      validate
+      // TODO: #1
+      // message,
+      validate: wrapValidator(validate)
     }
 
     for (const n of names) {

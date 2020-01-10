@@ -99,6 +99,13 @@ const sanitizeState = state => {
   throw error('INVALID_RETURN_STATE', state)
 }
 
+const commandError = e => {
+  const err = error('COMMAND_ERROR', e.message)
+  err.originalError = e
+
+  return err
+}
+
 module.exports = class Chat {
   constructor (template, options, {
     commands
@@ -460,7 +467,7 @@ module.exports = class Chat {
     if (!onError) {
       this._clearRefreshTimer()
 
-      throw actionErr
+      throw commandError(actionErr)
     }
 
     let onErrorState
@@ -478,7 +485,7 @@ module.exports = class Chat {
       return sanitizeState(onErrorState)
     }
 
-    throw onErrorErr
+    throw commandError(onErrorErr)
   }
 
   async _runAction (options) {
@@ -496,7 +503,7 @@ module.exports = class Chat {
     const timeout = delay(actionTimeout).then(() => {
       this._clearRefreshTimer()
 
-      throw error('ACTION_TIMEOUT')
+      throw error('COMMAND_TIMEOUT')
     })
 
     return Promise.race([
