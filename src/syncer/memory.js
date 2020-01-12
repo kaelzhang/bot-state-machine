@@ -45,7 +45,7 @@ module.exports = class SimpleMemorySyncer {
   }
 
   read ({
-    // univeral unique id to distinguish every task
+    // universal unique id to distinguish every task
     chatId,
     // user id
     lockKey,

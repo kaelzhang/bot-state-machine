@@ -125,10 +125,6 @@ Users with different `distinctId`s are separated and have different isolated loc
 
 Everytime we execute `sm.chat('Bob')`, we create a new thread for Bob. And different threads share the same lock for Bob, so the bot could only do one thing for Bob at the same time.
 
-### Distributed lock: Your chat bot for clusters
-
-> TODO: document
-
 # API References
 
 ```js
@@ -148,6 +144,7 @@ const {
   - **lockRefreshInterval?** `number=1000` advanced option. This option should be less than `Syncer::options.lockExpire`, and it is used to prevent the lock from being expired before the command action finished executing.
   - **lockKey?** `function(distinctId):string` the method to create the `lockKey` for each distinct user.
   - **storeKey?** `function(distinctId):string` to create the key to save the current state for each distinct user.
+  - **syncer** `Syncer` see [`Advanced Section`](#advanced-section)
 
 ### sm.rootState(): State
 
@@ -205,7 +202,7 @@ someCommand.condition(function ({enabled}) {
 - **name** `string` the name of the option
 - **config** `object`
   - **alias** `Array<string>` the list of aliases of the option
-  - **validate**
+  - **validate** `function(value, key):boolean` throwable async or sync function to validate the option value. Instead of returning `false`, you can also throw an error in the function to provide a verbose error message.
 
 Create a option for the `command`.
 
@@ -244,13 +241,32 @@ type TargetState = State
   | undefined
 ```
 
+Here is an example to show how to use `CommandArgument`
+
+```js
+someCommand.action(async function ({options, flags, state}) {
+  try {
+    await doSomethingWith(options)
+    this.say('success')
+
+    // If succeeded, back to the parent state
+    return state.parent
+  } catch (e) {
+    this.say('fail, reason: %s', e.message)
+
+    // Just stay on the current state
+    return state
+  }
+})
+```
+
 ### command.catch(onError): this
 
 - **onError** `function(err: Error, arg: CommandArgument): TargetState`
   - **err** `Error` the error thrown by command action
   - **arg** the same as the argument of the action executor
 
-If the command action throws an error, then `onError` will be invoked. If `onError` throws an error, it will result in a `COMMAND_ERROR` error.
+If the command `action` throws an error, then `onError` will be invoked. If `onError` throws an error, it will result in a `COMMAND_ERROR` error, and stay on the current state.
 
 ## State
 
@@ -292,6 +308,55 @@ Could be used in:
 Could be used inn:
 - command action
 - command catch
+
+****
+
+# Advanced Section
+
+The default configuration of `StateMachine` only works for single instance chat bot, and saves store data just in memory.
+
+If you want to deploy a chat bot cluster with many instances or to use some storage other than memory, you need to implement your own syncer, abbr for synchronizer.
+
+A `Syncer` need to implement the interface with **FOUR** methods
+
+```ts
+interface SuccessStatus {
+  sucess: boolean
+}
+
+interface ReaderResult extends SuccessStatus {
+  store?: object
+}
+
+type Promisable<T> = Promise<T> | T
+
+interface SyncerArg {
+  chatId: string
+  store: object
+  lockKey: string
+  storeKey: string
+}
+
+interface ReaderArg {
+  chatId: string
+  lockKey: string
+  storeKey: string
+}
+
+interface RefresherArg {
+  chatId: string
+  lockKey: string
+}
+
+interface Syncer {
+  read (arg: ReaderArg): Promisable<ReaderResult>
+  lock (arg: SyncerArg): Promisable<SuccessStatus>
+  refreshLock (arg: RefresherArg): Promisable<void>
+  unlock (arg: SyncerArg): Promisable<SuccessStatus>
+}
+```
+
+> TODO: document
 
 ## License
 
