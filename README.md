@@ -356,7 +356,23 @@ interface Syncer {
 }
 ```
 
-> TODO: document
+### await read(arg)
+
+This method is used to read the `store` from storage. In this method, we need to check the lock status to make sure that the current chat session owns the lock
+
+### await lock(arg)
+
+In this method, we need to:
+- first, acquire the lock
+- then, update the storage
+
+### await refreshLock(arg)
+
+Refresh the expiration of lock
+
+### await unlock(arg)
+
+Release the lock and update the store
 
 ## License
 
