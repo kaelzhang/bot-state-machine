@@ -20,7 +20,7 @@ The server-ready Finite state machine for chat bot, which
 - Supports to define custom commands with options
 - Supports simplified command options
 - Supports sub(nested) states and command declarations in sub states
-- Only allows **a single task thread**, which means that your chat bot could apply only one task at a time globally even in distributed environment. A single-thread chat bot executes less things but fits better for voice input and interactive tasks.
+- Only allows **a single task thread**, which means that for a single user, your chat bot could apply only one task at a time globally even in distributed environment. A single-thread chat bot executes less things but fits better for voice input and interactive tasks.
 - Supports distributed task locking with redis, and you can also implement yourself.
 
 `bot-state-machine` uses [private class fields](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Class_fields#Private_instance_fields) to ensure data security so that it requires node >= 12
@@ -209,7 +209,7 @@ someCommand.condition(function ({enabled}) {
   - **alias** `Array<string>` the list of aliases of the option
   - **validate** `function(value, key):boolean` throwable async or sync function to validate the option value. Instead of returning `false`, you can also throw an error in the function to provide a verbose error message.
 
-Create a option for the `command`.
+Create a option, ie an argument, for the `command`.
 
 ### command.action(executor): this
 
