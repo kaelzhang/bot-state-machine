@@ -42,6 +42,8 @@ const sm = new StateMachine()
 const rootState = sm.rootState()
 
 const Buy = rootState.command('buy')
+// bot-state-machine provides a Python-like argument parser,
+// so, `buy TSLA` is equivalent to `buy stock=TSLA`
 .option('stock')
 .action(async function ({options}) {
   await buyStock(options.stock)
@@ -162,6 +164,9 @@ A global command could **NOT** define:
 - sub states
 
 ### sm.chat(distinctId, {commands}): Chat
+
+- **distinctId** `string` distinct id to distinguish between different users
+- **commands** `Array<string|Command>` A list of commands to restrict the priviledge of the user. If the user input a command which is not in the list, there will be an `UNKNOWN_COMMAND` error.
 
 Create a new conversation
 

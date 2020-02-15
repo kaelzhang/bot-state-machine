@@ -4,6 +4,7 @@ const {
 } = require('../common')
 
 const permissionList = (commands, template) => {
+  // all permissions
   if (!commands) {
     return
   }
