@@ -15,7 +15,7 @@
 
 # bot-state-machine
 
-The server-ready Finite state machine for chat bot, which
+The server-ready FSM (Finite State Machine) for chat bot, which
 
 - Supports to define custom commands with options
 - Supports simplified command options
@@ -68,16 +68,19 @@ const output = await chat.input('buy TSLA') // or 'buy stock=TSLA'
 console.log(output) // success
 ```
 
-### Flow control: define several sub states for a command
+## Flow control: define several sub states for a command
 
 - A state can have multiple commands
 - A commands can have multiple sub states
-- The state machine will redirect to a certain state according to the return value of command `action` or `catch`
-- A command could only go to one of its sub states, one of the parent states or root state.
+- The state machine redirects to a certain state according to the return value of a command's `action` or `catch`
+- A command could only go to
+  - one of its sub states
+  - one of the parent states
+  - or the root state.
 
 [Here](example/nested-states.js) is a complex example, and its corresponding test spec locates [here](test/integrated.test.js)
 
-#### Example: coin-operated turnstile
+### Example: coin-operated turnstile
 
 There is a classic example of the [Finite-state machine](https://en.wikipedia.org/wiki/Finite-state_machine) from wikipedia, [coin-operated turnstile](https://en.wikipedia.org/wiki/Finite-state_machine#Example:_coin-operated_turnstile).
 
