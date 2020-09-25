@@ -1,4 +1,6 @@
-const uuid = require('uuid/v4')
+const {
+  v4: uuid
+} = require('uuid')
 
 const State = require('./template/state')
 const CommandManager = require('./template/command-manager')

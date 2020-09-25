@@ -146,7 +146,7 @@ const {
   - **lockRefreshInterval?** `number=1000` advanced option. This option should be less than `Syncer::options.lockExpire`, and it is used to prevent the lock from being expired before the command action finished executing.
   - **lockKey?** `function(distinctId):string` the method to create the `lockKey` for each distinct user.
   - **storeKey?** `function(distinctId):string` to create the key to save the current state for each distinct user.
-  - **syncer** `Syncer` see [`Advanced Section`](#advanced-section)
+  - **syncer?** `Syncer=new SimpleMemorySyncer()` see [`Advanced Section`](#advanced-section)
 
 ### sm.rootState(): State
 
@@ -156,7 +156,7 @@ Create a root state.
 
 - **names** `Array<string>` you can create a command with a name and multiple aliases
 
-Create a global command.
+Create a global command. A global command could be called at any states.
 
 A global command could **NOT** define:
 - condition
@@ -177,6 +177,10 @@ Create a new conversation
 - **message** `string`
 
 Receives the user input and return a Promise of the output by chat bot.
+
+### setter chat.state `State | string`
+
+> TODO: code, document
 
 ## Command
 
