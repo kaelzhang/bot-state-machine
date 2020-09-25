@@ -50,6 +50,7 @@
     "codecov": "^3.7.2",
     "eslint": "^7.9.0",
     "eslint-plugin-import": "^2.22.0",
+    "ioredis": "^4.3.0",
     "nyc": "^15.1.0"
   },
   "dependencies": {

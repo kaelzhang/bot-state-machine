@@ -136,7 +136,6 @@ module.exports = class Chat {
     this._store = null
     this._currentCommand = null
     this._currentAction = null
-    // this._locked = false
 
     this._output = []
 
@@ -156,6 +155,15 @@ module.exports = class Chat {
     this._stateContext = {
       say
     }
+  }
+
+  // - enable `boolean` false to not distinguish different sessions
+  session (enable = true) {
+    if (!enable) {
+      this._chatId = ''
+    }
+
+    return this
   }
 
   _setFlag (key, value) {
@@ -330,7 +338,7 @@ module.exports = class Chat {
       template: this._template
     })
 
-    // Run global command
+    // Run command
     await this._runCommand(args)
   }
 
@@ -381,8 +389,6 @@ module.exports = class Chat {
     if (!success) {
       throw error('LOCK_FAIL')
     }
-
-    // this._locked = true
   }
 
   async _unlock () {
@@ -402,6 +408,7 @@ module.exports = class Chat {
     )
 
     if (!success) {
+      // TODO
       // log the failure
     }
   }
@@ -413,7 +420,6 @@ module.exports = class Chat {
     } = this._options
 
     await syncer.refreshLock({
-      chatId: this._chatId,
       lockKey
     })
   }

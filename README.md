@@ -214,9 +214,9 @@ someCommand.condition(function ({enabled}) {
 - **name** `string` the name of the option
 - **config** `object`
   - **alias** `Array<string>` the list of aliases of the option
-  - **validate** `function(value, key):boolean` throwable async or sync function to validate the option value. Instead of returning `false`, you can also throw an error in the function to provide a verbose error message.
+  - **validate** `function(value, key):boolean` throwable async or sync function to validate the option value. If the function does not throw, the return value indicates whether the given option is successfully validated or not. You can also throw an error in the function to provide a verbose error message instead of returning `false`.
 
-Create a option, ie an argument, for the `command`.
+Create a option, i.e. an argument, for the `command`.
 
 ### command.action(executor): this
 
@@ -343,6 +343,7 @@ interface ReaderResult extends SuccessStatus {
 type Promisable<T> = Promise<T> | T
 
 interface SyncerArg {
+  // `chatId` is an unique id for the current chat session
   chatId: string
   store: object
   lockKey: string

@@ -45,7 +45,7 @@ module.exports = class SimpleMemorySyncer {
   }
 
   read ({
-    // universal unique id to distinguish every task
+    // universal unique id to distinguish every chat session
     chatId,
     // user id
     lockKey,
@@ -95,8 +95,6 @@ module.exports = class SimpleMemorySyncer {
   //  or the lock might not be released due to unexpected failure.
   // But a lock might expire before the command
   refreshLock ({
-    // We do not need chatId for MemorySyncer
-    // chatId,
     lockKey
   }) {
     this._setTimer(lockKey)
@@ -104,16 +102,14 @@ module.exports = class SimpleMemorySyncer {
 
   // Unlock (if necessary and own the lock) and update the store
   unlock ({
-    chatId,
+    // We do not need `chatId` for MemorySyncer
+    // chatId,
     store,
     lockKey,
     storeKey
   }) {
-    if (!this._canOwn(lockKey, chatId)) {
-      return {
-        success: false
-      }
-    }
+    // For memory syncer, when executing `unlock` we always own the lock,
+    // so we could skip testing the ownership of the lock
 
     delete this._storage[lockKey]
     this._storage[storeKey] = store
