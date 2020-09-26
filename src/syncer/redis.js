@@ -13,26 +13,27 @@ module.exports = class RedisSyncer {
     this._lockExpire = lockExpire
   }
 
-  //
-  async _getLock (lockKey) {
-    const result = await this._redis.set(
-      lockKey, '1', 'NX', 'EX', `${this._lockExpire}`
-    )
-
-    return result === 'OK'
-  }
-
-  // Returns `true` if the lock is owned by the current session
-  async _ownLock (lockKey) {
-
-  }
-
   async read ({
     chatId,
     lockKey,
     storeKey
   }) {
+    const [result, store] = await this._redis.read(
+      lockKey,
+      storeKey,
+      chatId
+    )
 
+    if (result === 'NOT_OK') {
+      return {
+        success: false
+      }
+    }
+
+    return {
+      success: true,
+      store: JSON.parse(store)
+    }
   }
 
   async lock ({
@@ -41,13 +42,26 @@ module.exports = class RedisSyncer {
     lockKey,
     storeKey
   }) {
+    const result = await this._redis.lock(
+      lockKey,
+      storeKey,
+      chatId,
+      store,
+      this._lockExpire
+    )
 
+    return {
+      success: result === 'OK'
+    }
   }
 
   async refreshLock ({
     lockKey
   }) {
-
+    await this._redis.refreshLock(
+      lockKey,
+      this._lockExpire
+    )
   }
 
   async unlock ({
@@ -56,8 +70,15 @@ module.exports = class RedisSyncer {
     lockKey,
     storeKey
   }) {
+    const result = await this._redis.unlock(
+      lockKey,
+      storeKey,
+      chatId,
+      JSON.stringify(store)
+    )
 
+    return {
+      success: result === 'OK'
+    }
   }
-
-
 }

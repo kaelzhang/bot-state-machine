@@ -2,7 +2,6 @@ local lock_key = KEYS[1]
 local store_key = KEYS[2]
 local chat_id = ARGV[1]
 local store = ARGV[2]
-local expires = ARGV[3]
 
 local locked = redis.call('get', lock_key)
 
