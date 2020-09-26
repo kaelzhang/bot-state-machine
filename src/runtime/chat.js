@@ -157,15 +157,6 @@ module.exports = class Chat {
     }
   }
 
-  // - enable `boolean` false to not distinguish different sessions
-  session (enable = true) {
-    if (!enable) {
-      this._chatId = ''
-    }
-
-    return this
-  }
-
   _setFlag (key, value) {
     const {parentId} = this._currentCommand
     const {flags} = this._template[parentId]

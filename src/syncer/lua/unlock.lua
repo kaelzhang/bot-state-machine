@@ -5,7 +5,7 @@ local store = ARGV[2]
 
 local locked = redis.call('get', lock_key)
 
-if (locked == nil) then
+if (not locked) then
   -- It is already unlocked, however, it is ok
   return 'OK'
 end

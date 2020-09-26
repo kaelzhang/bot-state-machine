@@ -3,7 +3,7 @@ local expires = ARGV[1]
 
 local chat_id = redis.call('get', lock_key)
 
-if (chat_id == nil) then
+if (not chat_id) then
   return 'NOT_OK'
 end
 

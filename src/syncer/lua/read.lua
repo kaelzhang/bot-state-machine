@@ -4,7 +4,7 @@ local chat_id = ARGV[1]
 
 local locked = redis.call('get', lock_key)
 
-if (locked == nil or locked == chat_id) then
+if (not locked or locked == chat_id) then
   -- There is no lock, so we could own the lock
   return {
     'OK',
