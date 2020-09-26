@@ -1,5 +1,5 @@
-const Redis = require('ioredis')
 const delay = require('delay')
+const Redis = require('ioredis')
 
 const {
   StateMachine,
@@ -7,15 +7,7 @@ const {
 } = require('..')
 
 
-const createBot = withRedis => {
-  const options = {}
-
-  if (withRedis) {
-    options.syncer = new RedisSyncer(
-      new Redis(6379, '127.0.0.1')
-    )
-  }
-
+const createBot = (options = {}) => {
   const sm = new StateMachine(options)
 
   const root = sm.rootState()
@@ -73,7 +65,16 @@ const run = async (t, bot1, bot2, bot3) => {
 }
 
 
+const createRedis = () => new Redis(6379, '127.0.0.1')
+
+const createOptions = (redis = createRedis()) => ({
+  syncer: new RedisSyncer(redis)
+})
+
+
 module.exports = {
   createBot,
-  run
+  run,
+  createRedis,
+  createOptions
 }

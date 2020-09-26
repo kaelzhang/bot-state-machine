@@ -1,15 +1,25 @@
 const test = require('ava')
 const delay = require('delay')
+
 const {
   StateMachine,
-  SimpleMemorySyncer
+  SimpleMemorySyncer,
+  RedisSyncer
 } = require('..')
 
-const createSM = lockRefreshInterval => {
+const {
+  createRedis
+} = require('./fixture')
+
+
+const createSM = (
+  lockRefreshInterval,
+  syncer = new SimpleMemorySyncer({
+    lockExpire: 200
+  })
+) => {
   const sm = new StateMachine({
-    syncer: new SimpleMemorySyncer({
-      lockExpire: 200
-    }),
+    syncer,
     lockRefreshInterval,
     actionTimeout: 3000
   })
@@ -67,4 +77,18 @@ test('refreshInterval not enough', async t => {
       t.is(output, 'foo')
     })
   ])
+})
+
+
+test('refreshInterval with RedisSyncer', async t => {
+  const sm = createSM(
+    300,
+    new RedisSyncer(
+      createRedis()
+    )
+  )
+
+  const output = await sm.chat('Trump').input('foo 1000')
+
+  t.is(output, 'foo')
 })

@@ -64,9 +64,9 @@ const parse = async (command, args) => {
 
   for (const key of command[OPTION_LIST]) {
     const {validate} = options[key]
-    if (validate) {
-      tasks.push(validate(parsed[key], key))
-    }
+
+    // There is always an validator
+    tasks.push(validate(parsed[key], key))
   }
 
   // Validate
@@ -530,9 +530,11 @@ module.exports = class Chat {
 
     // Something wrong that the state id is invalid.
     // For example, there is a breaking change of template.
-    if (!preset) {
-      return
-    }
+    // TODO: check this case
+
+    // if (!preset) {
+    //   return
+    // }
 
     const keep = create()
     keep[stateId] = true
