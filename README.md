@@ -135,7 +135,8 @@ Everytime we execute `sm.chat('Bob')`, we create a new thread for Bob. And diffe
 ```js
 const {
   StateMachine,
-  SimpleMemorySyncer
+  SimpleMemorySyncer,
+  RedisSyncer
 } = require('bot-state-machine')
 ```
 
@@ -338,8 +339,12 @@ If you want to deploy a chat bot cluster with many instances or to use some stor
 ```js
 const Redis = require('ioredis')
 
+const {RedisSyncer} = require('bot-state-machine')
+
 const sm = new StateMachine({
-  syncer: new Redis(6379, '127.0.0.1')
+  syncer: new RedisSyncer(
+    new Redis(6379, '127.0.0.1')
+  )
 })
 ```
 
