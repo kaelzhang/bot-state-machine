@@ -327,7 +327,25 @@ Could be used inn:
 
 The default configuration of `StateMachine` only works for single instance chat bot, and saves store data just in memory.
 
-If you want to deploy a chat bot cluster with many instances or to use some storage other than memory, you need to implement your own syncer, abbr for synchronizer.
+If you want to deploy a chat bot cluster with many instances or to use some storage other than memory, you could use other syncers, such as the built-in `RedisSyncer` to use redis as the storage.
+
+### new RedisSyncer(redis, options)
+
+- **redis** `ioredis` the instance of [`ioredis`](https://npmjs.org/package/ioredis) or an object has the same interfaces as `ioredis`
+- **options?** `Object=`
+  - **lockExpire** `int` number of milliseconds util the lock expires.
+
+```js
+const Redis = require('ioredis')
+
+const sm = new StateMachine({
+  syncer: new Redis(6379, '127.0.0.1')
+})
+```
+
+### Implement your own syncer
+
+You could also implement your own syncer, abbr for synchronizer.
 
 A `Syncer` need to implement the interface with **FOUR** methods
 
