@@ -71,7 +71,7 @@ console.log(output) // success
 ## Flow control: define several sub states for a command
 
 - A state can have multiple commands
-- A commands can have multiple sub states
+- A command can have multiple subtle states
 - The state machine redirects to a certain state according to the return value of a command's `action` or `catch`
 - A command could only go to
   - one of its sub states

@@ -1,0 +1,5 @@
+{
+  // Redis lua scripting has some built-in variables,
+  // so disable undefined-global
+  "Lua.diagnostics.disable": ["undefined-global"]
+}
