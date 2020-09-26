@@ -1,6 +1,6 @@
 {
   "name": "bot-state-machine",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Finite state machine for chat bot",
   "main": "src/index.js",
   "scripts": {
