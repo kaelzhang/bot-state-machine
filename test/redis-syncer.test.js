@@ -7,6 +7,10 @@ const {
 
 
 test('lock conflict', async t => {
-  const sm = createBot()
-  await run(t, sm, sm, sm)
+  await run(
+    t,
+    createBot(true),
+    createBot(true),
+    createBot(true)
+  )
 })
