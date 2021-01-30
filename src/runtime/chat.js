@@ -5,75 +5,16 @@ const delay = require('delay')
 const log = require('util').debuglog('bot-state-machine')
 
 const {
-  split, splitKeyValue,
+  split,
   create, ensureObject,
-  ROOT_STATE_ID,
-  // STATE,
-  OPTION_LIST, OPTIONS
+  ROOT_STATE_ID
 } = require('../common')
 const error = require('../error')
 const State = require('../template/state')
 const RuntimeState = require('./state')
 const Permissions = require('./permissions')
+const parse = require('./command')
 
-const parse = async (command, args) => {
-  const keyList = [].concat(command[OPTION_LIST])
-  const parsed = Object.create(null)
-  const unnamed = []
-
-  const {length} = args
-  let i = 0
-  while (i < length) {
-    const {key, value} = splitKeyValue(args[i ++])
-    if (!key) {
-      unnamed.push(value)
-      continue
-    }
-
-    const index = keyList.indexOf(key)
-    if (index === - 1) {
-      throw error('UNKNOWN_OPTION', key)
-    }
-
-    parsed[key] = value
-    keyList.splice(index, 1)
-  }
-
-  const unnamedLength = unnamed.length
-  const keyListLength = keyList.length
-
-  let rest = []
-
-  if (unnamedLength > keyListLength) {
-    // We just abandon redundant argument
-    rest = unnamed.splice(keyListLength)
-  }
-
-  for (const value of unnamed) {
-    parsed[keyList.shift()] = value
-  }
-
-  if (keyList.length) {
-    throw error('OPTIONS_NOT_FULFILLED', keyList)
-  }
-
-  parsed._ = rest
-
-  const tasks = []
-  const options = command[OPTIONS]
-
-  for (const key of command[OPTION_LIST]) {
-    const {validate} = options[key]
-
-    // There is always an validator
-    tasks.push(validate(parsed[key], key))
-  }
-
-  // Validate
-  await Promise.all(tasks)
-
-  return parsed
-}
 
 const runSyncer = async fn => {
   let success

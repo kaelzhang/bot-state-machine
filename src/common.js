@@ -51,12 +51,15 @@ const splitKeyValue = s => {
     }
 }
 
+const returnValue = value => () => value
+
+
 module.exports = {
   create,
   ensureObject,
 
   NOOP: () => {},
-  RETURN_TRUE: () => true,
+  JUST_RETURN: v => v,
 
   ROOT_STATE_ID: STATE_PREFIX,
 
@@ -76,5 +79,7 @@ module.exports = {
   OPTION_LIST: 'optionList',
 
   split,
-  splitKeyValue
+  splitKeyValue,
+
+  returnValue
 }

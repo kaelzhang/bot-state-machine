@@ -1,9 +1,16 @@
 const {
+  isFunction
+} = require('core-util-is')
+
+const {
   create,
-  RETURN_TRUE,
-  OPTIONS, OPTION_LIST
+  JUST_RETURN,
+  OPTIONS, OPTION_LIST,
+
+  returnValue
 } = require('../common')
 const error = require('../error')
+
 
 const getDuplicateKey = (keys, obj) => {
   for (const key of keys) {
@@ -13,21 +20,27 @@ const getDuplicateKey = (keys, obj) => {
   }
 }
 
-const wrapValidator = validator => async (value, key) => {
-  let passed
 
-  try {
-    passed = await validator(value, key)
-  } catch (err) {
-    throw error('OPTION_VALIDATION_ERROR', key, value, err.message)
+const isHasDefault = config => 'default' in config
+
+
+const wrapDefault = defaults => isFunction(defaults)
+  ? defaults
+  : returnValue(defaults)
+
+
+const checkSetter = (setter, optionName) => {
+  if (!setter) {
+    return JUST_RETURN
   }
 
-  if (!passed) {
-    throw error('OPTION_VALIDATION_NOT_PASS', key, value)
+  if (isFunction(setter)) {
+    return setter
   }
 
-  return passed
+  throw error('INVALID_OPTION_SETTER', optionName, setter)
 }
+
 
 module.exports = class Options {
   constructor (command) {
@@ -35,14 +48,36 @@ module.exports = class Options {
     this._optionList = command[OPTION_LIST] = []
   }
 
-  add (name, {
-    alias = [],
-    // message = name,
-    validate
-  } = {}) {
-    alias = Array.from(alias)
+  _checkDefaultOption (name) {
+    for (const key of this._optionList) {
+      const schema = this._options[key]
 
-    const names = alias.concat(name)
+      if (isHasDefault(schema)) {
+        // `bot-state-machine` provides a python-like argument system,
+        // so, a non-default option should not follow a default option.
+        // For example:
+
+        // ```py
+        // def func(foo=1, bar):
+        //                 ^
+        //   return foo + bar
+        // ```
+        throw error('OPTION_FOLLOWS_NON_DEFAULT', name, key)
+      }
+    }
+  }
+
+  add (name, config = {}) {
+    const {
+      alias = [],
+      message = name,
+      // message = name,
+      set
+    } = config
+
+    const hasDefault = isHasDefault(config)
+
+    const names = Array.from(alias).concat(name)
     const duplicateKey = getDuplicateKey(names, this._options)
 
     if (duplicateKey) {
@@ -50,11 +85,14 @@ module.exports = class Options {
     }
 
     const schema = {
-      // TODO: #1
-      // message,
-      validate: validate
-        ? wrapValidator(validate)
-        : RETURN_TRUE
+      message,
+      set: checkSetter(set)
+    }
+
+    if (hasDefault) {
+      schema.default = wrapDefault(config.default)
+    } else {
+      this._checkDefaultOption(name)
     }
 
     for (const n of names) {

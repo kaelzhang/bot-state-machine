@@ -45,12 +45,16 @@ const template = {
     options: {
       stock: {
         message: 'what stock',
+        // Since 3.2.0
+        default (key, flags) {
+          return 'TSLA'
+        },
         // If the validation fails
         // - If the options are partial fulfilled,
         //    then do nothing, do not apply new option
         // - If the command just begins to apply options,
         //    then skip the command and just return to parent state
-        validate () {
+        set (value, key, flags) {
 
         }
       },

@@ -46,8 +46,9 @@ TE('INVALID_COMMAND_ID', `command ${must}`)
 
 TE('INVALID_STATE_ID', `state ${must}`)
 
-E('OPTION_VALIDATION_ERROR', 'option "%s" with value "%s" is validated as invalid, reason: %s')
+TE('INVALID_OPTION_SETTER', 'the value setter of option "%s" must be a function')
 
-E('OPTION_VALIDATION_NOT_PASS', 'option "%s" with value "%s" is validated as invalid')
+E('OPTION_FOLLOWS_NON_DEFAULT', 'non-default option "%s" follows default option "%s"')
+
 
 module.exports = error

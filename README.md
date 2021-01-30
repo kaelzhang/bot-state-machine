@@ -213,9 +213,10 @@ someCommand.condition(function ({enabled}) {
 ### command.option(name, config): this
 
 - **name** `string` the name of the option
-- **config** `object`
-  - **alias** `Array<string>` the list of aliases of the option
-  - **validate** `function(value, key):boolean` throwable async or sync function to validate the option value. If the function does not throw, the return value indicates whether the given option is successfully validated or not. You can also throw an error in the function to provide a verbose error message instead of returning `false`.
+- **config?** `object`
+  - **alias?** `Array<string>` the list of aliases of the option
+  - **default?** `function(key, flags):any | any` defines the default value of the option
+  - **set?** `function(value, key, flags):boolean` throwable async or sync function to coerce the option value. The return value will be the real value of the option. You can also throw an error in the function to provide a verbose error message.
 
 Create a option, i.e. an argument, for the `command`.
 
