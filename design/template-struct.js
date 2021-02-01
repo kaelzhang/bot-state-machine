@@ -66,6 +66,7 @@ const template = {
       amount
     },
 
+    // JavaScript set
     optionList: [
       'stock',
       'amount'

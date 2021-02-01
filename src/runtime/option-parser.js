@@ -55,12 +55,12 @@ module.exports = class Parser {
     // An array to collect unfulfilled keys
     unfulfilled
   ) {
-    const optionPreset = this._options[key]
+    const preset = this._options[key]
 
     let value = rawValue
 
     if (rawValue === UNDEFINED) {
-      const defaults = optionPreset.default
+      const defaults = preset.default
 
       if (defaults) {
         value = await errorWrapper(
@@ -73,8 +73,8 @@ module.exports = class Parser {
       }
     }
 
-    const setter = optionPreset.set
-    parsed[key] = await setter(value, key, flags)
+    const setter = preset.set
+    parsed[preset.name] = await setter(value, key, flags)
   }
 
   async parse (args, flags) {
@@ -82,34 +82,33 @@ module.exports = class Parser {
     // optionList: ['stock', 'position']
     // args: stock=TSLA all
 
-    const keyList = [].concat(this._optionList)
+    const keyList = new Set(this._optionList)
     const rawParsed = []
     const unnamed = []
 
-    const {length} = args
-    let i = 0
-    while (i < length) {
-      const {key, value} = splitKeyValue(args[i ++])
+    for (const arg of args) {
+      const {key, value} = splitKeyValue(arg)
       if (!key) {
         unnamed.push(value)
         continue
       }
 
-      const index = keyList.indexOf(key)
-      if (index === - 1) {
+      const preset = this._options[key]
+
+      if (!preset) {
         throw error('UNKNOWN_OPTION', key)
       }
 
       rawParsed.push([key, value])
-      keyList.splice(index, 1)
+      keyList.delete(preset.name)
     }
 
-    // parsed => {stock: 'TSLA'}
+    // rawParsed => {stock: 'TSLA'}
     // unnamed => ['all']
     // keyList => ['position']
 
     const unnamedLength = unnamed.length
-    const keyListLength = keyList.length
+    const keyListLength = keyList.size
 
     let rest = []
 

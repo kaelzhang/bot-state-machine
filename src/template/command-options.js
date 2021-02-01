@@ -46,7 +46,7 @@ const checkSetter = (setter, optionName) => {
 module.exports = class Options {
   constructor (command) {
     this._options = command[OPTIONS] = create()
-    this._optionList = command[OPTION_LIST] = []
+    this._optionList = command[OPTION_LIST] = new Set()
   }
 
   _checkDefaultOption (name) {
@@ -86,6 +86,8 @@ module.exports = class Options {
     }
 
     const schema = {
+      // So all aliases could easily get the primary name
+      name,
       message,
       set: checkSetter(set)
     }
@@ -98,7 +100,9 @@ module.exports = class Options {
 
     for (const n of names) {
       this._options[n] = schema
-      this._optionList.push(n)
     }
+
+    // Only primary option names are in the list
+    this._optionList.add(name)
   }
 }
