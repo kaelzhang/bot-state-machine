@@ -67,10 +67,10 @@ const template = {
     },
 
     // JavaScript set
-    optionList: [
+    optionList: new Set([
       'stock',
       'amount'
-    ],
+    ]),
 
     states: {
       $.$$buy.$need-confirm: {

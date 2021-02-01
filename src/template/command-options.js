@@ -63,7 +63,7 @@ module.exports = class Options {
         //                 ^
         //   return foo + bar
         // ```
-        throw error('OPTION_FOLLOWS_NON_DEFAULT', name, key)
+        throw error('NON_DEFAULT_OPTION_FOLLOWS_DEFAULT', name, key)
       }
     }
   }

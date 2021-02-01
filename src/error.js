@@ -46,7 +46,7 @@ TE('INVALID_STATE_ID', `state ${must}`)
 
 TE('INVALID_OPTION_SETTER', 'the value setter of option "%s" must be a function')
 
-E('OPTION_FOLLOWS_NON_DEFAULT', 'non-default option "%s" follows default option "%s"')
+E('NON_DEFAULT_OPTION_FOLLOWS_DEFAULT', 'non-default option "%s" follows default option "%s"')
 
 E('OPTION_TIMEOUT', 'option "%s" takes too long to parse')
 

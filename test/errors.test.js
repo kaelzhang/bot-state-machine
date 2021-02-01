@@ -112,7 +112,7 @@ const ERRORS = [
       .state('$foo')
     }
   }],
-  ['OPTION_FOLLOWS_NON_DEFAULT', {
+  ['NON_DEFAULT_OPTION_FOLLOWS_DEFAULT', {
     setup (root) {
       root.command('foo')
       .option('a', {

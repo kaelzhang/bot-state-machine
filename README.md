@@ -226,6 +226,76 @@ You can also validate the option value in the setter function.
 
 If the validation fails, we can throw an error in the function to provide a verbose error message.
 
+#### Options principle & Example
+
+We could not define a non-default option after an option with default values, for example:
+
+```js
+BuyCommand
+.option('position', {
+  default: '100%'
+})
+.option('stock')
+
+// ❌ This will cause an 'NON_DEFAULT_OPTION_FOLLOWS_DEFAULT' error
+```
+
+Here is a complex example
+
+```js
+const sm = new StateMachine(options)
+
+const root = sm.rootState()
+.flag('default-stock', '')
+
+const BuyCommand = root.command('buy')
+.option('stock', {
+  default (key, flags) {
+    const defaultStock = flags['default-stock']
+
+    if (!defaultStock) {
+      throw new Error('stock is required')
+    }
+
+    return defaultStock
+  }
+})
+.option('position', {
+  default: 'all-in',
+  set (value) {
+    if (value === 'all-in') {
+      return 1
+    }
+
+    if (Number.isNaN(value)) {
+      throw TypeError(`${value} is not a number`)
+    }
+
+    return Number(value)
+  }
+})
+.action(function ({options}) {
+  this.say(`buy ${options.stock}, position: ${options.position}`)
+})
+
+const SetDefaultStock = root.command('set-default-stock')
+.option('stock')
+.action(function ({options}) {
+  this.setFlag('default-stock', 'TSLA')
+})
+
+const output = await sm.chat().input(input)
+```
+
+sequence | input | error | output
+---- | ---- | ---- | ----
+1 | `buy TSLA` | | `'buy TSLA, position: 1'`
+2 | `buy` | `OPTIONS_NOT_FULFILLED` |
+3 | `set-default-stock TSLA` | | `''`
+4 | `buy` | | `'buy TSLA, position: 1'`
+5 | `buy position=0.2` | | `'buy TSLA, position: 0.2'`
+
+
 ### command.action(executor): this
 
 - **executor** `function(arg: CommandArgument): TargetState` Either async or sync function to do real things fo the command
