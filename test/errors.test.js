@@ -1,5 +1,6 @@
 const test = require('ava')
-// const delay = require('delay')
+const delay = require('delay')
+
 const {run} = require('./common')
 
 const NOOP = () => {}
@@ -111,35 +112,63 @@ const ERRORS = [
       .state('$foo')
     }
   }],
-  // [(err, t) => {
-  //   t.is(err.code, 'OPTION_VALIDATION_ERROR')
-  //   t.deepEqual(err.args, ['bar', 'baz', 'foo'])
-  // }, {
-  //   setup (root) {
-  //     root.command('foo')
-  //     .option('bar', {
-  //       async validate () {
-  //         await delay(10)
-  //         throw new Error('foo')
-  //       }
-  //     })
-  //   },
-  //   input: 'foo baz'
-  // }],
-  // [(err, t) => {
-  //   t.is(err.code, 'OPTION_VALIDATION_NOT_PASS')
-  //   t.deepEqual(err.args, ['bar', 'baz'])
-  // }, {
-  //   setup (root) {
-  //     root.command('foo')
-  //     .option('bar', {
-  //       validate () {
-  //         return false
-  //       }
-  //     })
-  //   },
-  //   input: 'foo baz'
-  // }]
+  ['OPTION_FOLLOWS_NON_DEFAULT', {
+    setup (root) {
+      root.command('foo')
+      .option('a', {
+        default: 1
+      })
+      .option('b')
+    }
+  }],
+  ['INVALID_OPTION_SETTER', {
+    setup (root) {
+      root.command('foo')
+      .option('a', {
+        set: 1
+      })
+    }
+  }],
+  [(err, t) => {
+    t.is(err.code, 'OPTION_PROCESS_ERROR')
+    t.deepEqual(err.args, ['bar'])
+  }, {
+    setup (root) {
+      root.command('foo')
+      .option('bar', {
+        set () {
+          throw new RangeError('invalid')
+        }
+      })
+    },
+    input: 'foo baz'
+  }],
+  [(err, t) => {
+    t.is(err.code, 'OPTIONS_NOT_FULFILLED')
+    t.deepEqual(err.args, [['baz']])
+  }, {
+    setup (root) {
+      root.command('foo')
+      .option('bar')
+      .option('baz')
+    },
+    input: 'foo a'
+  }],
+  [(err, t) => {
+    t.is(err.code, 'OPTION_TIMEOUT')
+    t.deepEqual(err.args, ['bar'])
+  }, {
+    optionTimeout: 10,
+    setup (root) {
+      root.command('foo')
+      .option('bar', {
+        async set () {
+          await delay(100)
+        }
+      })
+    },
+    input: 'foo a'
+  }]
 ]
 
 ERRORS.forEach(([code, ...args], i) => {

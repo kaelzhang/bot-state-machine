@@ -13,7 +13,7 @@ const error = require('../error')
 const State = require('../template/state')
 const RuntimeState = require('./state')
 const Permissions = require('./permissions')
-const parse = require('./command')
+const Parser = require('./option-parser')
 
 
 const runSyncer = async fn => {
@@ -63,9 +63,12 @@ const commandError = e => {
 }
 
 module.exports = class Chat {
-  constructor (template, options, {
-    commands
-  }) {
+  constructor (
+    template,
+    options, {
+      commands
+    }
+  ) {
     this._template = template
     this._options = options
     this._permissions = new Permissions(commands, template)
@@ -523,7 +526,10 @@ module.exports = class Chat {
       return
     }
 
-    const options = await parse(this._currentCommand, args)
+    const options = await new Parser(
+      this._currentCommand,
+      this._options.optionTimeout
+    ).parse(args, this._getCommandFlags())
 
     if (this._currentAction) {
       // Gain the lock

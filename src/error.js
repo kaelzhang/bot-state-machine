@@ -6,8 +6,6 @@ const {E, TE, error} = new Errors({
 
 E('UNKNOWN_OPTION', 'unknown option "%s"')
 
-E('OPTIONS_NOT_FULFILLED', 'options are not enough, missing %j')
-
 E('FLAG_NOT_DEFINED', 'flag "%s" is not defined')
 
 E('NOT_OWN_LOCK', 'the current thread does not own the lock')
@@ -50,5 +48,10 @@ TE('INVALID_OPTION_SETTER', 'the value setter of option "%s" must be a function'
 
 E('OPTION_FOLLOWS_NON_DEFAULT', 'non-default option "%s" follows default option "%s"')
 
+E('OPTION_TIMEOUT', 'option "%s" takes too long to parse')
+
+E('OPTION_PROCESS_ERROR', 'option "%s" fails to process')
+
+E('OPTIONS_NOT_FULFILLED', 'options are not enough, missing %j')
 
 module.exports = error

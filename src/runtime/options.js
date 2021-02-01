@@ -19,6 +19,7 @@ module.exports = class Options {
     ),
     lockKey = createLockKey,
     storeKey = createStoreKey,
+    optionTimeout = 1000,
     actionTimeout = 5000,
     // Should less than Syncer::lockExpire
     lockRefreshInterval = 1000,
@@ -28,6 +29,7 @@ module.exports = class Options {
   } = {}) {
     this.options = {
       syncer,
+      optionTimeout,
       actionTimeout,
       nonExactMatch,
       lockRefreshInterval,

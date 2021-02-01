@@ -61,7 +61,7 @@ const template = {
       // s is an alias of stock,
       // but s is not in optionList
       s: {
-        // stock
+        // The same reference of stock
       },
       amount
     },

@@ -6,6 +6,8 @@ const create = () => Object.create(null)
 const ensureObject = (host, key) =>
   host[key] || (host[key] = create())
 
+
+const UNDEFINED = undefined
 const DELIMITER = '.'
 const STATE_PREFIX = '$'
 const COMMAND_PREFIX = '$$'
@@ -67,6 +69,8 @@ module.exports = {
   commandId,
 
   checkId,
+
+  UNDEFINED,
 
   COMMAND: 'command',
   STATE: 'state',

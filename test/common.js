@@ -3,8 +3,9 @@ const {StateMachine} = require('..')
 const run = async ({
   setup,
   input,
-  distinctId
-}, options) => {
+  distinctId,
+  ...options
+}) => {
   const sm = new StateMachine(options)
 
   const root = sm.rootState()

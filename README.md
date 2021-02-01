@@ -216,9 +216,15 @@ someCommand.condition(function ({enabled}) {
 - **config?** `object`
   - **alias?** `Array<string>` the list of aliases of the option
   - **default?** `function(key, flags):any | any` defines the default value of the option
-  - **set?** `function(value, key, flags):boolean` throwable async or sync function to coerce the option value. The return value will be the real value of the option. You can also throw an error in the function to provide a verbose error message.
+  - **set?** `function(value, key, flags):boolean` throwable async or sync setter function to coerce the option value. The return value will be the real value of the option.
 
 Create a option, i.e. an argument, for the `command`.
+
+#### setter function
+
+You can also validate the option value in the setter function.
+
+If the validation fails, we can throw an error in the function to provide a verbose error message.
 
 ### command.action(executor): this
 
