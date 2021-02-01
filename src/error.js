@@ -54,4 +54,6 @@ E('OPTION_PROCESS_ERROR', 'option "%s" fails to process')
 
 E('OPTIONS_NOT_FULFILLED', 'options are not enough, missing %j')
 
+E('DUPLICATE_GIVEN_OPTION', 'the given option "%s=%s" is duplicated')
+
 module.exports = error

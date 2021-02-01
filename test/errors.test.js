@@ -130,6 +130,16 @@ const ERRORS = [
     }
   }],
   [(err, t) => {
+    t.is(err.code, 'DUPLICATE_GIVEN_OPTION')
+    t.deepEqual(err.args, ['bar', '2'])
+  }, {
+    setup (root) {
+      root.command('foo')
+      .option('bar')
+    },
+    input: 'foo bar=1 bar=2'
+  }],
+  [(err, t) => {
     t.is(err.code, 'OPTION_PROCESS_ERROR')
     t.deepEqual(err.args, ['bar'])
   }, {

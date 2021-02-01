@@ -100,6 +100,12 @@ module.exports = class Parser {
       }
 
       rawParsed.push([key, value])
+
+      const {name} = preset
+      if (!keyList.has(name)) {
+        throw error('DUPLICATE_GIVEN_OPTION', key, value)
+      }
+
       keyList.delete(preset.name)
     }
 
