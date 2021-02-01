@@ -163,11 +163,44 @@ const ERRORS = [
       root.command('foo')
       .option('bar', {
         async set () {
-          await delay(100)
+          await delay(30)
+          throw new RangeError('invalid')
         }
       })
     },
     input: 'foo a'
+  }],
+  [(err, t) => {
+    t.is(err.code, 'OPTION_PROCESS_ERROR')
+    t.deepEqual(err.args, ['bar'])
+  }, {
+    // no timeout, and there will be another error
+    optionTimeout: 0,
+    setup (root) {
+      root.command('foo')
+      .option('bar', {
+        async set () {
+          await delay(30)
+          throw new RangeError('invalid')
+        }
+      })
+    },
+    input: 'foo a'
+  }],
+  [(err, t) => {
+    t.is(err.code, 'OPTION_PROCESS_ERROR')
+    t.deepEqual(err.args, ['bar'])
+    t.deepEqual(err.originalError.message, 'required')
+  }, {
+    setup (root) {
+      root.command('foo')
+      .option('bar', {
+        default () {
+          throw Error('required')
+        }
+      })
+    },
+    input: 'foo'
   }]
 ]
 
