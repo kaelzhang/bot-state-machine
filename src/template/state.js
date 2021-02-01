@@ -2,6 +2,7 @@ const Flags = require('./flags')
 const {
   ensureObject,
   FLAGS, STATES,
+  COMMAND_FINDER,
   STATE
 } = require('../common')
 
@@ -60,7 +61,7 @@ module.exports = class State {
   }
 
   default (commandFinder) {
-    this.#state.default = commandFinder
+    this.#state[COMMAND_FINDER] = commandFinder
     return this
   }
 }

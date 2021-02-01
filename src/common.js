@@ -78,6 +78,7 @@ module.exports = {
   COMMAND: 'command',
   STATE: 'state',
 
+  COMMAND_FINDER: 'default',
   COMMANDS: 'commands',
   COMMAND_SET: 'commandSet',
 

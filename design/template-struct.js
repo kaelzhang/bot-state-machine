@@ -29,7 +29,7 @@ const template = {
       }
     },
 
-    default (flags) {
+    default (input, flags) {
       return Command
     },
 

@@ -9,7 +9,7 @@ const {
   create, ensureObject,
   ROOT_STATE_ID,
 
-  COMMANDS, COMMAND_SET,
+  COMMANDS, COMMAND_SET, COMMAND_FINDER,
   FLAGS,
   STATES
 } = require('../common')
@@ -247,7 +247,7 @@ module.exports = class Chat {
   async _runDefaultCommandFinder (commandString) {
     // TODO:
     // support this._current as a command
-    const defaultFinder = this._current.default
+    const defaultFinder = this._current[COMMAND_FINDER]
 
     if (!defaultFinder) {
       return
@@ -260,7 +260,7 @@ module.exports = class Chat {
     } = this._current
 
     try {
-      command = await defaultFinder(this._getFlags(flags, id))
+      command = await defaultFinder(commandString, this._getFlags(flags, id))
     } catch (e) {
       const err = error('COMMAND_FINDER_ERROR')
       err.originalError = e
@@ -268,7 +268,8 @@ module.exports = class Chat {
     }
 
     if (!command) {
-      throw error('INVALID_RETURN_COMMAND')
+      // Default finder can not found a command
+      return
     }
 
     const commandId = command.id

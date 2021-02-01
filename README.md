@@ -372,6 +372,28 @@ Defines a flag
 
 Defines a command which is only available at the current state.
 
+### state.default(defaultFinder): this
+
+- **defaultFinder** `function(input: str, flags: object): Command | undefined` async or sync function which will be executed if there is no matched command for the given input, and whose return value will be the command to use
+
+Defines a finder function to find the default command
+
+```js
+const Hello = state
+.command('hello')
+.option('name')
+.action(function ({options}) {
+  this.say(`hello ${options.name}`)
+})
+
+state.default(() => Hello)
+```
+
+input | output | comments
+---- | ---- | ----
+`hello world` | `'hello world'`
+`world` | `'hello world'` | `Hello` is the default command
+
 ## Context Methods
 
 ### this.say(template, ...values): void

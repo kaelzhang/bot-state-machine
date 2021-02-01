@@ -11,15 +11,25 @@ test('basic', async t => {
   const root = sm.rootState()
 
   const Sell = root.command('sell')
+  .action(function () {
+    this.say('sell')
+  })
+
   const Buy = root.command('buy')
   const BuyState = Buy.state('state')
+
+  root.default(input => {
+    if (input === 'unknown') {
+      return Sell
+    }
+  })
 
   Buy.action(() => BuyState)
 
   const Back = BuyState.command('back')
   .action(() => root)
 
-  t.is(await sm.chat('bob').input('sell'), '')
+  t.is(await sm.chat('bob').input('sell'), 'sell')
 
   const options = {
     commands: [
@@ -31,6 +41,8 @@ test('basic', async t => {
       null,
       // invalid, state will be omitted
       BuyState.id,
+
+      // TODO: whether should throw?
       // invalid
       'not-exists'
     ]
@@ -38,8 +50,17 @@ test('basic', async t => {
 
   t.is(await sm.chat('roger', options).input('buy'), '')
 
+  await sm.chat('roger', options).input('back')
+
   await t.throwsAsync(
     () => sm.chat('roger', options).input('sell'), {
+      code: 'UNKNOWN_COMMAND'
+    }
+  )
+
+  // Command finder -> sell
+  await t.throwsAsync(
+    () => sm.chat('roger', options).input('unknown'), {
       code: 'UNKNOWN_COMMAND'
     }
   )

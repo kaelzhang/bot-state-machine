@@ -27,7 +27,7 @@ const setup = root => {
   })
 
   root.default(
-    flags => flags.default === 'hello'
+    (_, flags) => flags.default === 'hello'
       ? hello
       : bye
   )

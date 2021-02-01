@@ -213,17 +213,29 @@ const ERRORS = [
     input: 'foo'
   }],
   [(err, t) => {
-    t.is(err.code, 'OPTION_PROCESS_ERROR')
-    t.deepEqual(err.args, ['bar'])
-    t.deepEqual(err.originalError.message, 'required')
+    t.is(err.code, 'COMMAND_FINDER_ERROR')
+    t.deepEqual(err.originalError.message, 'error')
   }, {
     setup (root) {
-      root.command('foo')
-      .option('bar', {
-        default () {
-          throw Error('required')
-        }
+      root.default(() => {
+        throw new Error('error')
       })
+    },
+    input: 'foo'
+  }],
+  [(err, t) => {
+    t.is(err.code, 'INVALID_RETURN_COMMAND')
+  }, {
+    setup (root) {
+      root.default(() => 1)
+    },
+    input: 'foo'
+  }],
+  [(err, t) => {
+    t.is(err.code, 'INVALID_RETURN_COMMAND')
+  }, {
+    setup (root) {
+      root.default(() => ({id: 'non-existing'}))
     },
     input: 'foo'
   }]
