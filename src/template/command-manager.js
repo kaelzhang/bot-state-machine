@@ -1,7 +1,7 @@
 const error = require('../error')
 const {
-  ensureObject,
-  COMMANDS, COMMAND,
+  ensureObject, createSet,
+  COMMANDS, COMMAND, COMMAND_SET,
   checkId, commandId
 } = require('../common')
 const Command = require('./command')
@@ -11,6 +11,7 @@ module.exports = class CommandManager {
   #parentId
   #global
   #commands
+  #commandSet
 
   constructor ({
     template,
@@ -21,11 +22,12 @@ module.exports = class CommandManager {
     this.#parentId = parentId
     this.#global = global
 
-    this.#commands = ensureObject(
-      parentId
-        ? template[parentId]
-        : template,
-      COMMANDS)
+    const host = parentId
+      ? template[parentId]
+      : template
+
+    this.#commands = ensureObject(host, COMMANDS)
+    this.#commandSet = ensureObject(host, COMMAND_SET, createSet)
   }
 
   _checkDuplicate (names) {
@@ -47,6 +49,8 @@ module.exports = class CommandManager {
     for (const n of names) {
       this.#commands[n] = id
     }
+
+    this.#commandSet.add(id)
 
     return new Command({
       parentId: this.#parentId,

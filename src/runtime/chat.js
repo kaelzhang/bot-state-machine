@@ -7,7 +7,11 @@ const log = require('util').debuglog('bot-state-machine')
 const {
   split,
   create, ensureObject,
-  ROOT_STATE_ID
+  ROOT_STATE_ID,
+
+  COMMANDS, COMMAND_SET,
+  FLAGS,
+  STATES
 } = require('../common')
 const error = require('../error')
 const State = require('../template/state')
@@ -103,7 +107,9 @@ module.exports = class Chat {
 
   _setFlag (key, value) {
     const {parentId} = this._currentCommand
-    const {flags} = this._template[parentId]
+    const {
+      [FLAGS]: flags
+    } = this._template[parentId]
 
     if (!(key in flags)) {
       throw error('FLAG_NOT_DEFINED', key)
@@ -194,11 +200,11 @@ module.exports = class Chat {
     exact = true,
     global = false
   } = {}) {
-    const [name, ...args] = split(commandString, ' ')
+    const [name, ...args] = split(commandString)
 
     const commands = global
-      ? this._template.commands
-      : this._permissions.filterValue(this._current.commands)
+      ? this._template[COMMANDS]
+      : this._permissions.filterValue(this._current[COMMANDS])
 
     const exactMatch = commands[name]
 
@@ -238,6 +244,50 @@ module.exports = class Chat {
     }
   }
 
+  async _runDefaultCommandFinder (commandString) {
+    // TODO:
+    // support this._current as a command
+    const defaultFinder = this._current.default
+
+    if (!defaultFinder) {
+      return
+    }
+
+    let command
+    const {
+      [FLAGS]: flags,
+      id
+    } = this._current
+
+    try {
+      command = await defaultFinder(this._getFlags(flags, id))
+    } catch (e) {
+      const err = error('COMMAND_FINDER_ERROR')
+      err.originalError = e
+      throw err
+    }
+
+    if (!command) {
+      throw error('INVALID_RETURN_COMMAND')
+    }
+
+    const commandId = command.id
+
+    if (!this._current[COMMAND_SET].has(commandId)) {
+      throw error('INVALID_RETURN_COMMAND')
+    }
+
+    if (!this._permissions.has(commandId)) {
+      // Does not has permission
+      return
+    }
+
+    return {
+      command: this._template[commandId],
+      args: split(commandString)
+    }
+  }
+
   _generateOutput () {
     const {
       format,
@@ -255,6 +305,7 @@ module.exports = class Chat {
       || this._searchCommand(commandString)
       || this._options.nonExactMatch
         && this._searchCommand(commandString, {exact: false})
+      || await this._runDefaultCommandFinder(commandString)
 
     if (!match) {
       throw error('UNKNOWN_COMMAND', commandString)
@@ -277,23 +328,34 @@ module.exports = class Chat {
     await this._runCommand(args)
   }
 
-  _getCommandFlags () {
-    const {parentId} = this._currentCommand
+  _getFlags (flagPresets, stateId) {
     const values = create()
-    if (!parentId) {
-      return values
-    }
 
-    const {flags} = this._template[parentId]
-    const stored = this._store[parentId] || create()
+    const stored = this._store[stateId] || create()
 
-    for (const [key, config] of Object.entries(flags)) {
+    for (const [key, config] of Object.entries(flagPresets)) {
       values[key] = key in stored
         ? stored[key]
         : config.default
     }
 
     return values
+  }
+
+  // Get flags for command
+  _getCommandFlags () {
+    // parentId is the state id
+    const {parentId} = this._currentCommand
+
+    if (!parentId) {
+      return create()
+    }
+
+    const {
+      [FLAGS]: flags
+    } = this._template[parentId]
+
+    return this._getFlags(flags, parentId)
   }
 
   async _testCommandCondition () {
@@ -502,7 +564,7 @@ module.exports = class Chat {
   }
 
   _checkStateId (id) {
-    if (id in this._currentCommand.states) {
+    if (id in this._currentCommand[STATES]) {
       return true
     }
 

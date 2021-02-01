@@ -17,6 +17,11 @@ E('LOCK_FAIL', 'fail to lock')
 TE('INVALID_RETURN_STATE',
   'the return state of a command should either be a State or undefined')
 
+E('COMMAND_FINDER_ERROR', 'fails to find default command')
+
+E('INVALID_RETURN_COMMAND',
+  'command finder must return a command of the current state')
+
 E('COMMAND_TIMEOUT', 'command action timed out')
 
 E('COMMAND_ERROR', 'command fails to run, reason: %s')

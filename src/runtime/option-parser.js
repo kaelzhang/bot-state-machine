@@ -3,7 +3,7 @@ const delay = require('delay')
 const {
   splitKeyValue,
   // STATE,
-  OPTION_LIST, OPTIONS,
+  OPTION_SET, OPTIONS,
 
   UNDEFINED
 } = require('../common')
@@ -42,7 +42,7 @@ module.exports = class Parser {
     commandPreset,
     timeout
   ) {
-    this._optionList = commandPreset[OPTION_LIST]
+    this._optionSet = commandPreset[OPTION_SET]
     this._options = commandPreset[OPTIONS]
     this._timeout = timeout
   }
@@ -79,10 +79,10 @@ module.exports = class Parser {
 
   async parse (args, flags) {
     // For example:
-    // optionList: ['stock', 'position']
+    // optionSet: ['stock', 'position']
     // args: stock=TSLA all
 
-    const keyList = new Set(this._optionList)
+    const keyList = new Set(this._optionSet)
     const rawParsed = []
     const unnamed = []
 

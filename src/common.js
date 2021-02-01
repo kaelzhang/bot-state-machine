@@ -2,15 +2,17 @@ const splitString = require('split-string')
 const error = require('./error')
 
 const create = () => Object.create(null)
+const createSet = () => new Set()
 
-const ensureObject = (host, key) =>
-  host[key] || (host[key] = create())
+const ensureObject = (host, key, creator = create) =>
+  host[key] || (host[key] = creator())
 
 
 const UNDEFINED = undefined
 const DELIMITER = '.'
 const STATE_PREFIX = '$'
 const COMMAND_PREFIX = '$$'
+const WHITESPACE = ' '
 
 const createId = prefix => (name, parentId) =>
   parentId
@@ -33,7 +35,7 @@ const checkId = (id, type) => {
   }
 }
 
-const split = (s, separator) =>
+const split = (s, separator = WHITESPACE) =>
   splitString(s, {separator})
 
 // 'foo=bar baz' ->
@@ -58,6 +60,7 @@ const returnValue = value => () => value
 
 module.exports = {
   create,
+  createSet,
   ensureObject,
 
   NOOP: () => {},
@@ -76,11 +79,13 @@ module.exports = {
   STATE: 'state',
 
   COMMANDS: 'commands',
+  COMMAND_SET: 'commandSet',
+
   STATES: 'states',
   FLAGS: 'flags',
 
   OPTIONS: 'options',
-  OPTION_LIST: 'optionList',
+  OPTION_SET: 'optionSet',
 
   split,
   splitKeyValue,

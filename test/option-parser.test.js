@@ -1,6 +1,4 @@
-const test = require('ava')
-
-const {run} = require('./common')
+const {runCases} = require('./common')
 
 
 const helloSetup = alias => root => {
@@ -70,8 +68,4 @@ const CASES = [
 ]
 
 
-CASES.forEach(([title, options, expected], i) => {
-  test(`${i}: ${title}`, async t => {
-    t.is(await run(options), expected)
-  })
-})
+runCases(CASES)

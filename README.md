@@ -101,9 +101,9 @@ const CommandPush = StateUnlocked.command('push')
 .action(() => StateLocked)
 ```
 
-### Define flags for a state
+<!-- ### Define flags for a state
 
-> TODO: document
+> TODO: document -->
 
 ### Define global commands
 
@@ -182,9 +182,9 @@ Create a new conversation
 
 Receives the user input and return a Promise of the output by chat bot.
 
-### setter chat.state `State | string`
+<!-- ### setter chat.state `State | string`
 
-> TODO: code, document
+> TODO: code, document -->
 
 ## Command
 

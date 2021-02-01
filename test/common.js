@@ -1,4 +1,5 @@
 const makeArray = require('make-array')
+const test = require('ava')
 
 const {StateMachine} = require('..')
 
@@ -20,14 +21,25 @@ const run = async ({
   const inputs = makeArray(input)
   const lastInput = inputs.pop()
 
-  // for (const i of inputs) {
-  //   // eslint-disable-next-line no-await-in-loop
-  //   await sm.chat(distinctId).input(i)
-  // }
+  for (const i of inputs) {
+    // eslint-disable-next-line no-await-in-loop
+    await sm.chat(distinctId).input(i)
+  }
 
   return sm.chat(distinctId).input(lastInput)
 }
 
+
+const runCases = cases => {
+  cases.forEach(([title, options, expected], i) => {
+    test(`${i}: ${title}`, async t => {
+      t.is(await run(options), expected)
+    })
+  })
+}
+
+
 module.exports = {
-  run
+  run,
+  runCases
 }
