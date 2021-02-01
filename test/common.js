@@ -1,4 +1,7 @@
+const makeArray = require('make-array')
+
 const {StateMachine} = require('..')
+
 
 const run = async ({
   setup,
@@ -12,7 +15,17 @@ const run = async ({
 
   setup(root, sm)
 
-  return sm.chat(distinctId).input(input)
+  // return sm.chat(distinctId).input(input)
+
+  const inputs = makeArray(input)
+  const lastInput = inputs.pop()
+
+  // for (const i of inputs) {
+  //   // eslint-disable-next-line no-await-in-loop
+  //   await sm.chat(distinctId).input(i)
+  // }
+
+  return sm.chat(distinctId).input(lastInput)
 }
 
 module.exports = {

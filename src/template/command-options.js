@@ -1,6 +1,7 @@
 const {
   isFunction
 } = require('core-util-is')
+const makeArray = require('make-array')
 
 const {
   create,
@@ -77,7 +78,7 @@ module.exports = class Options {
 
     const hasDefault = isHasDefault(config)
 
-    const names = Array.from(alias).concat(name)
+    const names = makeArray(alias).concat(name)
     const duplicateKey = getDuplicateKey(names, this._options)
 
     if (duplicateKey) {
