@@ -11,7 +11,7 @@ const template = {
     // ```
     // () => {}
     // ```
-  }
+  },
 
   // root state
   $: {
@@ -29,11 +29,20 @@ const template = {
       }
     },
 
+    default (flags) {
+      return Command
+    },
+
     commands: {
       buy: '$.$$buy',
       // trade is an alias of buy
       trade: '$.$$buy'
-    }
+    },
+
+    commandSet: new Set([
+      '$.$$buy',
+      '$.$$buy'
+    ])
   },
 
   // command buy
@@ -54,20 +63,22 @@ const template = {
         //    then do nothing, do not apply new option
         // - If the command just begins to apply options,
         //    then skip the command and just return to parent state
-        set (value, key, flags) {
+        set (value, key, flags): any {
 
         }
       },
       // s is an alias of stock,
-      // but s is not in optionList
+      // but s is not in optionSet
       s: {
         // The same reference of stock
       },
+
+      // Another option
       amount
     },
 
     // JavaScript set
-    optionList: new Set([
+    optionSet: new Set([
       'stock',
       'amount'
     ]),
@@ -82,7 +93,7 @@ const template = {
       // if failed, then return to parent state
     },
 
-    action ({options, flags, distinctId, state}) {
+    action ({options, flags, distinctId, state}): State | undefined {
       // after run,
       // If returns
       // - state: then go to the state
@@ -93,7 +104,7 @@ const template = {
       // this.setFlag(key, value)
     },
 
-    catch (err, {options, flags, distinctId, state}) {
+    catch (err, {options, flags, distinctId, state}): State | undefined {
       // If the action encounters any uncaught error, then goes into here.
       // Then go to some state depends on the return value
 
@@ -114,10 +125,12 @@ const template = {
     },
 
     commands: {
-      $.$$buy.$need-confirm.$$confirm: {
-        // $.$$buy.$need-confirm.$confirm
-      }
-    }
+      confirm: '$.$$buy.$need-confirm.$$confirm'
+    },
+
+    commandSet: new Set([
+      '$.$$buy.$need-confirm.$$confirm'
+    ])
   },
 
   $.$$buy.$need-confirm.$$confirm: {

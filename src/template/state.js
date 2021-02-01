@@ -8,6 +8,7 @@ const {
 module.exports = class State {
   #cm
   #flags
+  #state
 
   constructor ({
     parentId,
@@ -15,6 +16,8 @@ module.exports = class State {
     template
   }) {
     const state = ensureObject(template, id)
+    this.#state = state
+
     const flags = ensureObject(state, FLAGS)
 
     // Verbose
@@ -54,5 +57,10 @@ module.exports = class State {
 
   command (...names) {
     return this.#cm.add(names)
+  }
+
+  default (commandFinder) {
+    this.#state.default = commandFinder
+    return this
   }
 }

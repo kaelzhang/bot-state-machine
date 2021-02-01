@@ -6,7 +6,7 @@ const makeArray = require('make-array')
 const {
   create,
   JUST_RETURN,
-  OPTIONS, OPTION_LIST,
+  OPTIONS, OPTION_SET,
 
   returnValue
 } = require('../common')
@@ -46,11 +46,11 @@ const checkSetter = (setter, optionName) => {
 module.exports = class Options {
   constructor (command) {
     this._options = command[OPTIONS] = create()
-    this._optionList = command[OPTION_LIST] = new Set()
+    this._optionSet = command[OPTION_SET] = new Set()
   }
 
   _checkDefaultOption (name) {
-    for (const key of this._optionList) {
+    for (const key of this._optionSet) {
       const schema = this._options[key]
 
       if (isHasDefault(schema)) {
@@ -103,6 +103,6 @@ module.exports = class Options {
     }
 
     // Only primary option names are in the list
-    this._optionList.add(name)
+    this._optionSet.add(name)
   }
 }
