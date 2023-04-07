@@ -30,9 +30,19 @@ test('basic', async t => {
     t.deepEqual(options.stock, 'TSLA')
     t.deepEqual(flags, {foo: false})
     this.say(`buy ${options.stock}`)
+
+    if (this.context) {
+      t.is(this.context.foo, 'bar')
+    }
   })
 
   t.is(await sm.chat('bob').input('buy TSLA'), 'passed\nbuy TSLA')
+  t.is(await sm.chat('bob', {
+    context: {
+      foo: 'bar'
+    }
+  }).input('buy TSLA'), 'passed\nbuy TSLA')
+
   t.is(await sm.chat('bob').input('buy stock=TSLA'), 'passed\nbuy TSLA')
   t.is(await sm.chat('bob').input('buy TSLA haha'), 'passed\nbuy TSLA')
   t.is(await sm.chat('bob').input('buyTSLA'), 'passed\nbuy TSLA')

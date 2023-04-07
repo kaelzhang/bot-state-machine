@@ -1,10 +1,11 @@
 {
   "name": "bot-state-machine",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "Finite state machine for chat bot",
   "main": "src/index.js",
   "scripts": {
-    "test": "NODE_DEBUG=bot-state-machine nyc ava --timeout=20s --verbose",
+    "test:only": "NODE_DEBUG=bot-state-machine nyc ava --timeout=20s --verbose",
+    "test": "npm run test:only",
     "test:dev": "NODE_DEBUG=bot-state-machine nyc ava --timeout=20s --verbose && npm run report:dev",
     "lint": "eslint .",
     "fix": "eslint . --fix",

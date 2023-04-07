@@ -167,10 +167,11 @@ A global command could **NOT** define:
 - option
 - sub states
 
-### sm.chat(distinctId, {commands}): Chat
+### sm.chat(distinctId, {commands, context}): Chat
 
 - **distinctId** `string` distinct id to distinguish between different users
-- **commands** `Array<string|Command>` A list of commands to restrict the priviledge of the user. If the user input a command which is not in the list, there will be an `UNKNOWN_COMMAND` error.
+- **commands** `Array<string|Command>=undefined` A list of commands to restrict the priviledge of the user. If the user input a command which is not in the list, there will be an `UNKNOWN_COMMAND` error. If not specified, any command will available for the current user
+- **context** `Object={}` the context object that could be accessed in many functions by `this.context`
 
 Create a new conversation
 
@@ -214,7 +215,7 @@ someCommand.condition(function ({enabled}) {
 
 - **name** `string` the name of the option
 - **config?** `object`
-  - **alias?** `Array<string>` the list of aliases of the option
+  - **alias?** `string | Array<string>` the list of aliases of the option
   - **default?** `function(key, flags):any | any` defines the default value of the option
   - **set?** `function(value, key, flags):boolean` throwable async or sync setter function to coerce the option value. The return value will be the real value of the option.
 
@@ -508,6 +509,16 @@ Refresh the expiration of lock
 ### await unlock(arg)
 
 Release the lock and update the store
+
+## Development
+
+```sh
+# First we should start a redis-server
+redis-server
+
+# Then run tests
+npm run test
+```
 
 ## License
 

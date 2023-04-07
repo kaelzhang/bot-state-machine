@@ -70,7 +70,8 @@ module.exports = class Chat {
   constructor (
     template,
     options, {
-      commands
+      commands,
+      context
     }
   ) {
     this._template = template
@@ -97,11 +98,13 @@ module.exports = class Chat {
 
     this._commandContext = {
       say,
-      setFlag
+      setFlag,
+      context
     }
 
     this._stateContext = {
-      say
+      say,
+      context
     }
   }
 
