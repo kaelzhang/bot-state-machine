@@ -31,6 +31,8 @@ test('basic', async t => {
 
   t.is(await sm.chat('bob').input('sell'), 'sell')
 
+  t.is(await sm.chat('bob').input('unknown'), 'sell')
+
   const options = {
     commands: [
       Buy,
